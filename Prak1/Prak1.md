@@ -49,3 +49,6 @@ N2 -> a-zN2 | A-ZN2 | 0-9N2 | _N2 | a-z | A-Z | 0-9
 ![image](Ableitungsbaum.png "Ableitungsbaum")
 
 ## Task 1.3
+
+## Task 1.6
+a((b+c)*dc)*((b+c)*d(a+b))
