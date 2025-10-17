@@ -2,8 +2,7 @@
 
 ## Task 1.1
 
-Alle Worte sind entweder ein einzelnes a oder ein aa mit beliebig vielen a's oder b's dazwischen (z.B. aaa, aba, 
-ababbbabbbabbba...)
+Alle Worte sind entweder ein einzelnes a oder ein aa mit beliebig vielen a's oder b's dazwischen (z.B. aaa, aba, ababbbabbbabbba...)
 
 ## Task 1.2
 
@@ -50,7 +49,6 @@ N2 -> a-zN2 | A-ZN2 | 0-9N2 | _N2 | a-z | A-Z | 0-9
 
 ## Task 1.3
 
-=======
 ### Python
 
 In Python werden Gleitkommazahlen nicht mit ihrem direkten Wert im Dezimalsystem gespeichert, sondern als ein Zähler im Binärsystem und als Exponent für zwei, welches dann den Nenner darstellt. Dadurch kommt man nicht genau an die Zahl ran, kann aber Zahlen einigermaßen genau und recht groß speichern.
@@ -90,7 +88,10 @@ Warum ist  a + b + c + c + … + z nicht richtig?
 
 Alle Gültigen Domainenden müssten aufgelistet werden
 
+## Task 1.5
+
+![image](Aufgabe1.5.jpg "DFA")
 
 ## Task 1.6
-a((b+c)*dc)*((b+c)*d(a+b))
 
+a((b+c)\*dc)\*((b+c)\*d(a+b))
