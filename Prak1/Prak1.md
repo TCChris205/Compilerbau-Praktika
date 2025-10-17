@@ -50,5 +50,47 @@ N2 -> a-zN2 | A-ZN2 | 0-9N2 | _N2 | a-z | A-Z | 0-9
 
 ## Task 1.3
 
+=======
+### Python
+
+In Python werden Gleitkommazahlen nicht mit ihrem direkten Wert im Dezimalsystem gespeichert, sondern als ein Zähler im Binärsystem und als Exponent für zwei, welches dann den Nenner darstellt. Dadurch kommt man nicht genau an die Zahl ran, kann aber Zahlen einigermaßen genau und recht groß speichern.
+
+#### Python-Regex
+
+#### Python-DFA
+
+#### Python-reguläre Grammatik
+
+### Java
+
+Java speichert Gleitkommazahlen in zwei Varianten ab. Floates werden in 4Bytes abgespeichert und können bis zu ca. 7 Nachkommastellen darstellen. Doubles nutzen 8 Bytes und können somit doppelt so viele Nachkommastellen abspeichern, ca. 14 Stück.
+
+#### Java-Regex
+
+#### Java-DFA
+
+#### Java-reguläre Grammatik
+
+## Task 1.4
+
+Warum ist der Regex ungeeignet?
+
+- Schreibweise a-z ungeeignet (siehe Aufgabe)
+- akzeptiert keine Großbuchstaben
+- nach dem @ kann nur ein einzelner Buchstabe gefolgt vom . und noch einem Buchstaben kommen (aaa@gmail.com ist nicht möglich)
+- letztes a-z kann besser alle gültigen endungen enthalten (.com + .de + .ch + .fr + ...)
+- Anfangsteil und Domain aktzepieren keine Zahlen
+
+Warum ist  a + b + c + c + … + z nicht richtig?
+
+- verwechslungsgefahr mit '…' ist das Zeichen selbst oder alle buchstaben von d bis y gemeint?
+- Ist … ein valides Zeichen?
+
+(a-z + A-Z + 1-9)\* @ (a-z + A-Z + 1-9)\* (.com + .de + .ch + .fr + …)
+
+Alle Gültigen Domainenden müssten aufgelistet werden
+
+
 ## Task 1.6
 a((b+c)*dc)*((b+c)*d(a+b))
+
