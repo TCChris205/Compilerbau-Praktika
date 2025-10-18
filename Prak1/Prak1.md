@@ -42,7 +42,9 @@ site12 = q2 -> q2
 ({N1,N2}, {a-z, A-Z, 1-9, _}, P, N1)
 
 P:
+
 N1 -> a-zN2 | A-ZN2
+
 N2 -> a-zN2 | A-ZN2 | 0-9N2 | _N2 | a-z | A-Z | 0-9
 
 ![image](Ableitungsbaum.png "Ableitungsbaum")
@@ -66,15 +68,69 @@ Die genauen Regeln sind in in der [Python Dokumentation](https://docs.python.org
 
 #### Python-reguläre Grammatik
 
+({N1, N2, N3, N4, N5, N6, N7, N8, N9, N10}, {e, E, 0-9, _, .}, P, N1)
+
+P:
+
+N1 -> 0-9N2 | .N4
+
+N2 -> 0-9N2 | _N3 | .N4 | eN7 | EN7
+
+N3 -> 0-9N2
+
+N4 -> 0-9N5 | eN7 | EN7 | ε
+
+N5 -> 0-9N5 | _N6 | eN7 | EN7 | ε
+
+N6 -> 0-9N5
+
+N7 -> 0-9N9 | +N8 | -N8
+
+N8 -> 0-9N9
+
+N9 -> 0-9N9 | _N10 | ε
+
+N10 -> 0-9N9
+
 ### Java
 
 Java speichert Gleitkommazahlen in zwei Varianten ab. Floates werden in 4Bytes abgespeichert und können bis zu ca. 7 Nachkommastellen darstellen. Doubles nutzen 8 Bytes und können somit doppelt so viele Nachkommastellen abspeichern, ca. 14 Stück.
 
 #### Java-Regex
 
+(((0-9)(\_(0-9))\* . (0-9) (\_(0-9))\* (((e + E)(+ + - + ε)) + ε) (0-9) (\_(0-9))\*) +
+(. (0-9) (\_(0-9))\* (((e + E)(+ + - + ε)) + ε) (0-9) (\_(0-9))\*) +
+((0-9) (\_(0-9))\* (e + E) (+ + - + ε) (0-9) (\_(0-9))\*))(d + F + d + D + ε)
+
 #### Java-DFA
 
 #### Java-reguläre Grammatik
+
+({N1, N2, N3, N4, N5, N6, N7, N8, N9, N10}, {e, E, 0-9, _, .}, P, N1)
+
+P:
+
+N1 -> 0-9N2 | .N4
+
+N2 -> 0-9N2 | _N3 | .N4 | eN7 | EN7 | dN11 | DN11 | fN11 | FN11
+
+N3 -> 0-9N2
+
+N4 -> 0-9N5 | eN7 | EN7 | ε
+
+N5 -> 0-9N5 | _N6 | eN7 | EN7 | dN11 | DN11 | fN11 | FN11 | ε
+
+N6 -> 0-9N5
+
+N7 -> 0-9N9 | +N8 | -N8
+
+N8 -> 0-9N9
+
+N9 -> 0-9N9 | _N10 | dN11 | DN11 | fN11 | FN11 | ε
+
+N10 -> 0-9N9
+
+N11 -> ε
 
 ## Task 1.4
 
