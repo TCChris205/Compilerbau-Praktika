@@ -73,7 +73,7 @@ Java speichert Gleitkommazahlen in zwei Varianten ab. Floates werden in 4Bytes a
 #### Java-Regex
 
 #### Java-DFA
-
+![image](DFAJava.jpg "DFAJava")
 #### Java-reguläre Grammatik
 
 ## Task 1.4
