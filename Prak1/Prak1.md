@@ -80,7 +80,9 @@ N10 -> 0-9N9
 
 ### Java
 
-Java speichert Gleitkommazahlen in zwei Varianten ab. Floates werden in 4Bytes abgespeichert und können bis zu ca. 7 Nachkommastellen darstellen. Doubles nutzen 8 Bytes und können somit doppelt so viele Nachkommastellen abspeichern, ca. 14 Stück.
+Fast identisch zu der Art und Weise wie Gleitkommazahlen in Python dargestellt werden können. \
+Der einzige Unterschied bei Java ist, das nach einer Zahl ein d/D oder ein f/F angegeben werden kann, um den Datentyp festzulegen. \
+Standardmäßig sind Gleitkommazahlen in Java Doubles, man kann sie durch ein F am Ende aber auch als float definieren, was sich insoweit unterscheidet, das nur der halbe Speicherplatz für die Zahl verwendet wird.
 
 #### Java-Regex
 
