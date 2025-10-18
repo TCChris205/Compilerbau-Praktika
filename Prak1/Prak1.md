@@ -51,16 +51,14 @@ N2 -> a-zN2 | A-ZN2 | 0-9N2 | _N2 | a-z | A-Z | 0-9
 
 ### Python
 
-In python muss eine Gleitkommazahl entweder ein punkt oder ein e/E enthalten. nach einem e/E kann ein +/- folgen.
-
-die genauen regeln sind in in der python dokumentation nachzu lesen.
-
-https://docs.python.org/3/reference/lexical_analysis.html
+In Python muss eine Gleitkommazahl entweder einen Punkt oder ein e/E enthalten. Nach einem e/E kann ein +/- folgen.
+Die genauen Regeln sind in in der [Python Dokumentation](https://docs.python.org/3/reference/lexical_analysis.html) nach zu lesen.
 
 #### Python-Regex
-((0-9) (_(0-9))* . (0-9) (_(0-9))* (e + E) (+ + - + ε) (0-9) (_(0-9))*) +
-(. (0-9) (_(0-9))* (e + E) (+ + - + ε) (0-9) (_(0-9))*) +
-((0-9) (_(0-9))* (e + E) (+ + - + ε) (0-9) (_(0-9))*)
+
+((0-9)(\_(0-9))\* . (0-9) (\_(0-9))\* (((e + E)(+ + - + ε)) + ε) (0-9) (\_(0-9))\*) +
+(. (0-9) (\_(0-9))\* (((e + E)(+ + - + ε)) + ε) (0-9) (\_(0-9))\*) +
+((0-9) (\_(0-9))\* (e + E) (+ + - + ε) (0-9) (\_(0-9))\*)
 
 #### Python-DFA
 
