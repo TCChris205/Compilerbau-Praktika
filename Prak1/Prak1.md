@@ -51,9 +51,16 @@ N2 -> a-zN2 | A-ZN2 | 0-9N2 | _N2 | a-z | A-Z | 0-9
 
 ### Python
 
-In Python werden Gleitkommazahlen nicht mit ihrem direkten Wert im Dezimalsystem gespeichert, sondern als ein Zähler im Binärsystem und als Exponent für zwei, welches dann den Nenner darstellt. Dadurch kommt man nicht genau an die Zahl ran, kann aber Zahlen einigermaßen genau und recht groß speichern.
+In python muss eine Gleitkommazahl entweder ein punkt oder ein e/E enthalten. nach einem e/E kann ein +/- folgen.
+
+die genauen regeln sind in in der python dokumentation nachzu lesen.
+
+https://docs.python.org/3/reference/lexical_analysis.html
 
 #### Python-Regex
+((0-9) (_(0-9))* . (0-9) (_(0-9))* (e + E) (+ + - + ε) (0-9) (_(0-9))*) +
+(. (0-9) (_(0-9))* (e + E) (+ + - + ε) (0-9) (_(0-9))*) +
+((0-9) (_(0-9))* (e + E) (+ + - + ε) (0-9) (_(0-9))*)
 
 #### Python-DFA
 
