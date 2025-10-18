@@ -139,7 +139,7 @@ Warum ist der Regex ungeeignet?
 - Schreibweise a-z ungeeignet (siehe Aufgabe)
 - akzeptiert keine Großbuchstaben
 - nach dem @ kann nur ein einzelner Buchstabe gefolgt vom . und noch einem Buchstaben kommen (<aaa@gmail.com> ist nicht möglich)
-- letztes a-z kann besser alle gültigen endungen enthalten (.com + .de + .ch + .fr + ...)
+- letztes a-z sollte besser alle gültigen endungen enthalten (.com + .de + .ch + .fr + ...)
 - Anfangsteil und Domain aktzepieren keine Zahlen
 
 Warum ist  a + b + c + c + … + z nicht richtig?
@@ -147,7 +147,7 @@ Warum ist  a + b + c + c + … + z nicht richtig?
 - verwechslungsgefahr mit '…' ist das Zeichen selbst oder alle buchstaben von d bis y gemeint?
 - Ist … ein valides Zeichen?
 
-(a-z + A-Z + 1-9)\* @ (a-z + A-Z + 1-9)\* (.com + .de + .ch + .fr + …)
+(a-z + A-Z + 0-9)\* @ (a-z + A-Z + 0-9)\* (.com + .de + .ch + .fr + …)
 
 Alle Gültigen Domainenden müssten aufgelistet werden
 
