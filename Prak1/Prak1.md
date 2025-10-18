@@ -124,12 +124,12 @@ Da hier nicht alle Zahlen und alle Großbuchstaben mit inbegriffen sind.
 Korrekt wäre: \
 (a-z + A-Z + 0-9)\* @ (a-z + A-Z + 0-9)\* . (a-z + A-Z + 0-9)\*
 
-Alle gültigen Domainenden müssten aufgelistet werden.
-
 ## Task 1.5
 
 ![image](Aufgabe1.5.jpg "DFA")
 
 ## Task 1.6
 
-a((b+c)\*dc)\*((b+c)\*d(a+b))
+Eine Sprache in der Worte immer mit einem a anfängt, mit einem da oder db endet und dazwischen beliebig viele b's, c's und dc's hat.
+
+a(b+c+dc)\*d(a+b)
