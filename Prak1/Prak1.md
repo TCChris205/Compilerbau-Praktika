@@ -64,6 +64,8 @@ https://docs.python.org/3/reference/lexical_analysis.html
 
 #### Python-DFA
 
+![image](DFAPython.jpg "DFAPython")
+
 #### Python-reguläre Grammatik
 
 ### Java
