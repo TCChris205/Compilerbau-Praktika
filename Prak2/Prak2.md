@@ -54,3 +54,7 @@ N2 -> bN2c | ϵ
 N3 -> cN3 | ϵ
 N4 -> aN4 | ϵ
 }
+
+Die Grammatik ist mehrdeutig da z.B:
+N0-> N1N3 -> aN1bcN3 -> abc
+N0 -> N4N2 -> aN4bN2c -> abc
