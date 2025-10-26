@@ -44,3 +44,9 @@ ergibt das selbe wie
 Statement -> "if" Contidion Statement "else" Statement -> "if" Condition "if" Condition Statement "else" Statement
 
 ## 4
+
+N0 -> N1N3 | N4N2
+N1 -> aN1b | ϵ
+N2 -> bN2c | ϵ
+N3 -> cN3 | ϵ
+N4 -> aN4 | ϵ
