@@ -17,6 +17,17 @@ a -> q2, Stack = [#
 
 ### bccac
 
+b -> q2, Stack = [#
+c -> q1, Stack = [#, 1b, 1
+ϵ -> q0, Stack = [#, 1b, 1
+c -> q1, Stack = [#, 1b, 1, 1, 1
+ϵ -> q0, Stack = [#, 1b, 1, 1, 1
+a -> q0, Stack = [#, 1b, 1, 1
+c -> q1, Stack = [#, 1b, 1, 1, 1, 1
+ϵ -> q0, Stack = [#, 1b, 1, 1, 1, 1
+
+Endet in q0 -> Illegaler Zustand
+
 ## 2
 
 ## 3
