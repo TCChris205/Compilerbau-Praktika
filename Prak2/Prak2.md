@@ -71,7 +71,7 @@ $F = \{q4\}$
 
 ### Sprache
 
-$w = {a^2b^2c^2d^2}$
+$w = {a^nb^mc^md^k | k = n+x*2, x∈N0}$
 
 ## 3
 
