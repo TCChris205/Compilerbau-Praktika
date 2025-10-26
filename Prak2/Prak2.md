@@ -21,4 +21,15 @@ a -> q2, Stack = [#
 
 ## 3
 
+Die Sprache besteht aus endlosen Ketten an "if" und "else". Nach jedem if kommt eine undefinierte Condition. Nach jeder Condition kann ein "if" oder "else" kommen. Ein "else" kann erst nach einer unendlichen menge an "if" folgen. D.h. wenn wir nur die ersten n Zeichen eines Wortes der Sprache betrachten, dann wäre es in jedem Fall "if Condition if Condition if Condition ..."
+
+
+Die Sprache ist nicht eindeutig:
+
+Statement -> "if" Condition Statement -> "if" Condition "if" Condition Statement "else" Statement
+
+ergibt das selbe wie
+
+Statement -> "if" Contidion Statement "else" Statement -> "if" Condition "if" Condition Statement "else" Statement
+
 ## 4
