@@ -37,7 +37,7 @@ Der PDA ist nicht deterministisch, weil er bei q3 zwei mögliche Wege bei $δ( q
 ![image](Task2.png "Bild des PDA")
 
 ### Tupel
-$P = (Q,Σ,Γ,δ,⊥,F)$
+$P = (Q,Σ,Γ,δ,q_0,⊥,F)$
 
 $Q = \{q0,q1,q2,q3,q4\}$
 
