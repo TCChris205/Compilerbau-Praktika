@@ -66,7 +66,7 @@ $F = \{q4\}$
 
 ### Sprache
 
-$w = {a^2b^2c^2d^2}$
+$w = {a^nb^mc^md^k | k = n+x*2, x∈N0}$
 ## 3
 
 Die Sprache besteht aus endlosen Ketten an "if" und "else". Nach jedem if kommt eine undefinierte Condition. Nach jeder Condition kann ein "if" oder "else" kommen. Ein "else" kann erst nach einer unendlichen menge an "if" folgen. D.h. wenn wir nur die ersten n Zeichen eines Wortes der Sprache betrachten, dann wäre es in jedem Fall "if Condition if Condition if Condition ..."
