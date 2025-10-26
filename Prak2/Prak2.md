@@ -59,3 +59,5 @@ N0-> N1N3 -> aN1bcN3 -> abc \
 N0 -> N4N2 -> aN4bN2c -> abc
 
 ![image](kontextfrei.png "PDA")
+
+Anmerkung: Die in den Übergängen angegebene Reihenfolge der auf den Stack zu legenden Keller-Buchstaben ist invertiert. D.h., dass der Buchstabe ganz links am Ende der Operation derjenige ist, der ganz oben auf dem Stack liegt.
