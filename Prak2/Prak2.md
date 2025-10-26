@@ -45,8 +45,12 @@ Statement -> "if" Contidion Statement "else" Statement -> "if" Condition "if" Co
 
 ## 4
 
+G = ({N0, N1, N2, N3, N4}, {a, b, c}, P, N0)
+
+P={
 N0 -> N1N3 | N4N2
 N1 -> aN1b | ϵ
 N2 -> bN2c | ϵ
 N3 -> cN3 | ϵ
 N4 -> aN4 | ϵ
+}
