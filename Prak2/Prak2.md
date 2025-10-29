@@ -6,6 +6,8 @@
 
 Anmerkung: Die in den Übergängen angegebene Reihenfolge der auf den Stack zu legenden Keller-Buchstaben ist invertiert. D.h., dass der Buchstabe ganz links am Ende der Operation derjenige ist, der ganz oben auf dem Stack liegt.
 
+![image](aaaa.png "Bild des PDA 2")
+
 ### bcaba
 
 b -> q2, Stack = [#  
