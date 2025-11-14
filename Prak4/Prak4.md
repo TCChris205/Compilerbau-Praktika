@@ -31,3 +31,26 @@ First und Follow Menge überschneiden nicht, also LL(1) Grammatik
 ## 5
 
 ## 6
+
+- GCC
+  - Gewechselt 2004/5
+- Javac
+- Pascal, Modula, Oberon
+  - Einfache und Simple Implementationsmöglichkeit
+- Go
+
+### ANTLR
+
+#### Pro
+
+- übernimmt Großteil der Aufgaben
+- automatisiert Prozess sobald Grammatik gegeben ist
+- Kann live Bäume generieren
+- Simples Testen
+- Bietet Möglichkeiten zur Einbindung von Visitorn und Listenern
+
+#### Contra
+
+- nervig aufzusetzen
+- dreht groß- und kleinschreibungskonvention um
+- Java
