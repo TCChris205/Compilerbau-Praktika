@@ -68,6 +68,8 @@ class Lexer:
                     if(self.match(";")):
                         self.consume()
                         self.go_to_next_line()
+                        if (self.pos >= len(self.text)):
+                            return Token("EOF")
                 case '"':   
                     return self.stringToken()
                 case _: 
@@ -150,7 +152,7 @@ class Lexer:
 
 
 if __name__ == "__main__":
-    lexer = Lexer('(/ (+ 10 2) (+ 2 4))  ;; ((10 + 2) / (2 + 4))\n')
+    lexer = Lexer(';; a \n')
 
     token = lexer.next_token()
     while(token.type != "EOF"):
