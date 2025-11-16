@@ -27,7 +27,7 @@ class Lexer:
         self.pos = 0
 
     def next_token(self) -> Token: 
-        if (self.pos >= len(self.text)):
+        if (not self.isPosValid()):
             return Token("EOF")
         while (len(self.text) > self.pos):
             match(self.peek()):
@@ -39,10 +39,16 @@ class Lexer:
                     return Token("RPAREN")
                 case ' ':   
                     self.ws()
+                    if (not self.isPosValid()):
+                        return Token("EOF")
                 case '\t':   
                     self.ws()
+                    if (not self.isPosValid()):
+                        return Token("EOF")
                 case '\n':   
                     self.ws()
+                    if (not self.isPosValid()):
+                        return Token("EOF")
                 case '+':   
                     self.consume()
                     return Token("AOP","+")
@@ -101,13 +107,14 @@ class Lexer:
         chars = ["\n"]
         while(self.peek() not in chars):
             self.consume()
-            self.isPosValid('expected char not found: \\n')
+            if(not self.isPosValid()):
+               raise Exception('expected char not found: \\n')
         self.consume()
 
     def readString(self):
         chars = [" ", "\t", "\n", "(", ")"]
         word = ""
-        while((self.peek() not in chars) and (self.pos <= len(self.text))):
+        while((self.peek() not in chars) and self.isPosValid()):
             word += self.peek()
             self.consume()
 
@@ -117,23 +124,26 @@ class Lexer:
         chars = ['"']
         string = ""
         self.consume()
-        self.isPosValid('"')
+        if(not self.isPosValid()):
+            raise Exception('expected char not found: "')
         while(self.peek() not in chars):
             string += self.peek()
             self.consume()
-            self.isPosValid('expected char not found: "')
+            if(not self.isPosValid()):
+               raise Exception('expected char not found: "')
+               
         self.consume()
         return Token("STRING", string)
 
     def ws(self):
         chars = [" ", "\t", "\n"]
-        while(self.peek() in chars):
+        while(self.isPosValid() and self.peek() in chars):
             self.consume()
-            self.isPosValid("End Of file")
 
-    def isPosValid(self, text):
+    def isPosValid(self):
         if(self.pos >= len(self.text)):
-            raise Exception(text)
+            return False
+        return True
 
     def peek(self):
         return self.text[self.pos]
@@ -152,7 +162,10 @@ class Lexer:
 
 
 if __name__ == "__main__":
-    lexer = Lexer(';; a \n')
+    data = ""
+    with open('Prak4/test.txt', 'r') as file:
+        data = file.read()
+    lexer = Lexer(data)
 
     token = lexer.next_token()
     while(token.type != "EOF"):
