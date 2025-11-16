@@ -10,14 +10,19 @@ start
 
 expression
     : literal
-    | ID
-    | listExpr
-    | callExpr
     | ifExpr
     | defExpr
     | defnExpr
     | letExpr
     | doExpr
+    | printExpr
+    | strExpr
+    | callExpr
+    | listExpr
+    | nthExpr
+    | headExpr
+    | tailExpr
+    | ID
     ;
 
 literal
@@ -25,6 +30,14 @@ literal
     | STRING
     | TRUE
     | FALSE
+    ;
+
+printExpr
+    : '(' PRINT literal ')'
+    ;
+
+strExpr
+    : '(' STRKW (literal|ID)+ ')'
     ;
 
 listExpr
@@ -50,15 +63,31 @@ defExpr
     ;
 
 defnExpr
-    : '(' DEFN ID '(' ID* ')' expression ')'
+    : '(' DEFN ID params expression ')'
+    ;
+
+params
+    : '(' ID* ')'
     ;
 
 letExpr
-    : '(' LET '(' ID expression ')' expression ')'
+    : '(' LET '(' (ID expression)+ ')' expression ')'
     ;
 
 doExpr
     : '(' DO expression+ ')'
+    ;
+
+nthExpr
+    : '(' NTH listExpr (NUM|ID)')'
+    ;
+
+headExpr
+    : '(' HEAD listExpr ')'
+    ;
+
+tailExpr
+    : '(' TAIL listExpr ')'
     ;
 
 // --------------------------
@@ -67,7 +96,6 @@ doExpr
 
 NUM         : [0-9]+ ;
 STRING      : '"' (~["\\] | '\\' .)* '"' ;
-ID          : [a-zA-Z][a-zA-Z0-9_]* ;
 
 TRUE        : 'true' ;
 FALSE       : 'false' ;
@@ -83,6 +111,8 @@ TAIL        : 'tail' ;
 NTH         : 'nth' ;
 IF          : 'if' ;
 DO          : 'do' ;
+
+ID          : [a-zA-Z][a-zA-Z0-9_]* ;
 
 AOP         : '+' | '-' | '*' | '/' ;
 COP         : '=' | '<' | '>' ;
