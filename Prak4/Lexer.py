@@ -103,13 +103,12 @@ class Lexer:
         self.consume()
 
     def readString(self):
-        chars = [" ", "\t", "\n"]
+        chars = [" ", "\t", "\n", "(", ")"]
         word = ""
         while((self.peek() not in chars) and (self.pos <= len(self.text))):
             word += self.peek()
             self.consume()
 
-        self.ws()
         return word
 
     def stringToken(self)-> str:
@@ -151,7 +150,7 @@ class Lexer:
 
 
 if __name__ == "__main__":
-    lexer = Lexer('(print "hello world")\n(print "wuppie\nfluppie\nfoo\nbar")')
+    lexer = Lexer('(/ (+ 10 2) (+ 2 4))  ;; ((10 + 2) / (2 + 4))\n')
 
     token = lexer.next_token()
     while(token.type != "EOF"):
