@@ -108,7 +108,7 @@ class Lexer:
         while(self.peek() not in chars):
             self.consume()
             if(not self.isPosValid()):
-               raise Exception('expected char not found: \\n')
+               break
         self.consume()
 
     def readString(self):
