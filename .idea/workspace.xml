@@ -5,38 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1b778158-9dce-4d98-9a70-0b03b68b7663" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/.editorconfig" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/.gitattributes" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/CITATION.cff" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/LICENSE.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/build.gradle" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/gradlew" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/gradlew.bat" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/metadata.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/antlr/Hello.g4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/antlr/MiniC.g4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/antlr/MiniLispA.g4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/antlr/MiniLispB.g4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/antlr/Prog.g4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/antlr/my/pkg/HelloPackage.g4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/java/Main.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/java/PrettyVisitor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/Makefile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/class.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/driver.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/expr.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/func.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/ifthenelse.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/inheritance.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/polymorphie.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/refs.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/vars.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/cpp/while.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/main/resources/test.txt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Prak3/Temp/src/test/java/MainTest.java" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/Prak4/Lexer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Prak4/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,9 +15,26 @@
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
   <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="main" />
+      </map>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="UPDATE_TYPE" value="REBASE" />
   </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Weltenschlange&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/TCChris205/Compilerbau-Praktika.git&quot;,
+    &quot;accountId&quot;: &quot;04e7bd14-df2c-4e68-82ea-8c8bc531a95e&quot;
+  }
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
@@ -58,20 +46,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/GitHub/Compilerbau-Praktika",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.0",
-    "project.structure.side.proportion": "0.0",
-    "settings.editor.selected.configurable": "preferences.pluginManager"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/GitHub/Compilerbau-Praktika&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="JetRunConfigurationType">
       <module name="Compilerbau-Praktika" />
@@ -127,6 +115,15 @@
       <option name="presentableId" value="Default" />
       <updated>1762082312566</updated>
     </task>
+    <task id="LOCAL-00001" summary="Fix Gramma">
+      <option name="closed" value="true" />
+      <created>1763288338218</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1763288338218</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -134,10 +131,26 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="origin/main" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Fix Gramma" />
+    <option name="LAST_COMMIT_MESSAGE" value="Fix Gramma" />
   </component>
 </project>

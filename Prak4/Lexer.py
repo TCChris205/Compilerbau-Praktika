@@ -15,7 +15,7 @@ class Token:
 
     def __repr__(self):
         if self.value:
-            return f"{self.type}({self.value})"
+            return f"{self.type}[{self.value}]"
         return f"{self.type}"
     
 class Lexer:
@@ -27,6 +27,8 @@ class Lexer:
         self.pos = 0
 
     def next_token(self) -> Token: 
+        if (self.pos >= len(self.text)):
+            return Token("EOF")
         while (len(self.text) > self.pos):
             match(self.peek()):
                 case '(':   
@@ -103,7 +105,7 @@ class Lexer:
     def readString(self):
         chars = [" ", "\t", "\n"]
         word = ""
-        while((self.peek() not in chars) and (self.pos >= len(self.text))):
+        while((self.peek() not in chars) and (self.pos <= len(self.text))):
             word += self.peek()
             self.consume()
 
@@ -146,3 +148,13 @@ class Lexer:
     
     def consume(self):
         self.pos += 1
+
+
+if __name__ == "__main__":
+    lexer = Lexer('(print "hello world")\n(print "wuppie\nfluppie\nfoo\nbar")')
+
+    token = lexer.next_token()
+    while(token.type != "EOF"):
+        print(token)
+        token = lexer.next_token()
+    print(token)
