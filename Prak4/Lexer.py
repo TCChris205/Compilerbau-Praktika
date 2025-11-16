@@ -154,9 +154,6 @@ class Lexer:
             return True
         return
     
-    def rollback(self):
-        self.text[self.pos - 1]
-    
     def consume(self):
         self.pos += 1
 
