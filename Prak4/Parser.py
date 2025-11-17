@@ -113,7 +113,6 @@ class Parser:
                 while True:
                     self.expression(node)
                     if self.matchType("RPAREN"):
-                        self.consume()
                         break
             case "COP":
                 node = node.addChild("OPERATOR")
@@ -121,7 +120,6 @@ class Parser:
                 while True:
                     self.expression(node)
                     if self.matchType("RPAREN"):
-                        self.consume()
                         break
             case "ID":
                 self.id(node)
@@ -155,14 +153,14 @@ class Parser:
         if not self.matchType("TRUE"):
             raise Exception("Called Method with wrong Type")
 
-        node.addChild("TRUE")
+        node.addChild("TRUE", "TRUE")
         self.consume()
 
     def false(self, node):
         if not self.matchType("FALSE"):
             raise Exception("Called Method with wrong Type")
 
-        node.addChild("FALSE")
+        node.addChild("FALSE", "FALSE")
         self.consume()
 
     def print1(self, node):
@@ -193,7 +191,6 @@ class Parser:
                 case _:
                     self.literal(node)
             if self.matchType("RPAREN"):
-                self.consume()
                 break
 
         if self.matchType("RPAREN"):
@@ -231,7 +228,7 @@ class Parser:
             raise Exception("Expected LPAREN Token")
         
         while self.matchType("ID"):
-            id(node)
+            self.id(node)
 
         if self.matchType("RPAREN"):
             self.consume()
@@ -261,7 +258,6 @@ class Parser:
             self.id(node)
             self.expression(node)
             if self.matchType("RPAREN"):
-                self.consume()
                 break
 
         if self.matchType("RPAREN"):
@@ -277,6 +273,9 @@ class Parser:
             raise Exception("Expected RPAREN Token")
 
     def list1(self, node):
+        if self.matchType("LPAREN"):
+            self.consume()
+
         if not self.matchType("LIST"):
             raise Exception("Called Method with wrong Type")
 
@@ -286,7 +285,6 @@ class Parser:
         while True:
             self.expression(node)
             if self.matchType("RPAREN"):
-                self.consume()
                 break
 
         if self.matchType("RPAREN"):
@@ -383,7 +381,6 @@ class Parser:
         while True:
             self.expression(node)
             if self.matchType("RPAREN"):
-                self.consume()
                 break
 
         if self.matchType("RPAREN"):
@@ -425,7 +422,7 @@ def printTree(node: Node):
                 string += ", " + str(printTree(c))
 
         string += ")"
-        return string
+        return str(string)
 
 if __name__ == "__main__":
     data = ""
