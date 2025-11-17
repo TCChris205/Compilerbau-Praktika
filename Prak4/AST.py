@@ -383,7 +383,11 @@ def proccesOther(parseTree: Node,AST: Interface) -> Interface:
             for c in parseTree.children:
                 AST.add(ToAst(c,AST))
             return AST
-        case "Call":
+        case "LITERAL":
+            for c in parseTree.children:
+                AST.add(ToAst(c,AST))
+            return AST
+        case "CALL":
             for c in parseTree.children:
                 AST.add(ToAst(c,AST))
             return AST
@@ -454,7 +458,7 @@ def proccesOther(parseTree: Node,AST: Interface) -> Interface:
             for c in parseTree.children:
                 v.add(ToAst(c,v))
             return v
-        case _: raise Exception("Unexpected Node")
+        case _: raise Exception("Unexpected Node: " + parseTree.type)
 
 if __name__ == "__main__":
     data = ""
