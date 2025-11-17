@@ -55,7 +55,7 @@ operator
     ;
 
 ifExpr
-    : '(' IF TRUE|FALSE|'(' COP expression+ ')' expression (expression)? ')'
+    : '(' IF (TRUE|FALSE|('(' COP expression+ ')')) expression (expression)? ')'
     ;
 
 defExpr
