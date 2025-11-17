@@ -26,8 +26,8 @@ class Parser:
         
     def lookahead(self):
         self.consume()
-        pos -= 1
-        return self.tokens[pos+1]
+        self.pos -= 1
+        return self.tokens[self.pos+1]
     
     def consume(self):
         self.pos += 1
@@ -113,6 +113,7 @@ class Parser:
                 while True:
                     self.expression(node)
                     if self.matchType("RPAREN"):
+                        self.consume()
                         break
             case "COP":
                 node = node.addChild("OPERATOR")
@@ -120,6 +121,7 @@ class Parser:
                 while True:
                     self.expression(node)
                     if self.matchType("RPAREN"):
+                        self.consume()
                         break
             case "ID":
                 self.id(node)
@@ -170,7 +172,7 @@ class Parser:
         node = node.addChild("PRINT")
         self.consume()
 
-        self.literal()
+        self.literal(node)
 
         if self.matchType("RPAREN"):
             self.consume()
@@ -191,6 +193,7 @@ class Parser:
                 case _:
                     self.literal(node)
             if self.matchType("RPAREN"):
+                self.consume()
                 break
 
         if self.matchType("RPAREN"):
@@ -258,6 +261,7 @@ class Parser:
             self.id(node)
             self.expression(node)
             if self.matchType("RPAREN"):
+                self.consume()
                 break
 
         if self.matchType("RPAREN"):
@@ -282,6 +286,7 @@ class Parser:
         while True:
             self.expression(node)
             if self.matchType("RPAREN"):
+                self.consume()
                 break
 
         if self.matchType("RPAREN"):
@@ -343,18 +348,19 @@ class Parser:
         self.consume()
         match(self.current().type):
             case "TRUE":
-                self.true()
+                self.true(node)
             case "FALSE":
-                self.false()
+                self.false(node)
             case "LPAREN":
                 self.consume()
                 if self.matchType("COP"):
-                    self.cop()
+                    self.cop(node)
                 else:
                     raise Exception("Expected COP")
                 while True:
                     self.expression(node)
                     if self.matchType("RPAREN"):
+                        self.consume()
                         break
             case _:
                 raise Exception("Expected TRUE, FALSE or LPAREN")
@@ -377,6 +383,7 @@ class Parser:
         while True:
             self.expression(node)
             if self.matchType("RPAREN"):
+                self.consume()
                 break
 
         if self.matchType("RPAREN"):
