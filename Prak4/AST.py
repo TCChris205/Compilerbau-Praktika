@@ -446,13 +446,7 @@ def proccesOther(parseTree: Node,AST: Interface) -> Interface:
             for c in parseTree.children:
                 v.add(ToAst(c,v))
             return v
-        case "COP":
-            v = OPERATION()
-            v.type = parseTree.val
-            for c in parseTree.children:
-                v.add(ToAst(c,v))
-            return v
-        case "AOP":
+        case "OPERATOR":
             v = OPERATION()
             v.type = parseTree.val
             for c in parseTree.children:
