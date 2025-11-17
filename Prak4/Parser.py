@@ -26,8 +26,8 @@ class Parser:
         
     def lookahead(self):
         self.consume()
-        pos -= 1
-        return self.tokens[pos+1]
+        self.pos -= 1
+        return self.tokens[self.pos+1]
     
     def consume(self):
         self.pos += 1
@@ -153,14 +153,14 @@ class Parser:
         if not self.matchType("TRUE"):
             raise Exception("Called Method with wrong Type")
 
-        node.addChild("TRUE")
+        node.addChild("TRUE", "TRUE")
         self.consume()
 
     def false(self, node):
         if not self.matchType("FALSE"):
             raise Exception("Called Method with wrong Type")
 
-        node.addChild("FALSE")
+        node.addChild("FALSE", "FALSE")
         self.consume()
 
     def print1(self, node):
@@ -170,7 +170,7 @@ class Parser:
         node = node.addChild("PRINT")
         self.consume()
 
-        self.literal()
+        self.literal(node)
 
         if self.matchType("RPAREN"):
             self.consume()
@@ -228,7 +228,7 @@ class Parser:
             raise Exception("Expected LPAREN Token")
         
         while self.matchType("ID"):
-            id(node)
+            self.id(node)
 
         if self.matchType("RPAREN"):
             self.consume()
@@ -273,6 +273,9 @@ class Parser:
             raise Exception("Expected RPAREN Token")
 
     def list1(self, node):
+        if self.matchType("LPAREN"):
+            self.consume()
+
         if not self.matchType("LIST"):
             raise Exception("Called Method with wrong Type")
 
@@ -343,18 +346,19 @@ class Parser:
         self.consume()
         match(self.current().type):
             case "TRUE":
-                self.true()
+                self.true(node)
             case "FALSE":
-                self.false()
+                self.false(node)
             case "LPAREN":
                 self.consume()
                 if self.matchType("COP"):
-                    self.cop()
+                    self.cop(node)
                 else:
                     raise Exception("Expected COP")
                 while True:
                     self.expression(node)
                     if self.matchType("RPAREN"):
+                        self.consume()
                         break
             case _:
                 raise Exception("Expected TRUE, FALSE or LPAREN")
@@ -418,7 +422,7 @@ def printTree(node: Node):
                 string += ", " + str(printTree(c))
 
         string += ")"
-        return string
+        return str(string)
 
 if __name__ == "__main__":
     data = ""
