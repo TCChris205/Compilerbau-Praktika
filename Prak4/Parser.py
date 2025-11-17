@@ -351,12 +351,13 @@ class Parser:
                 self.false(node)
             case "LPAREN":
                 self.consume()
+                node2 = node.addChild("OPERATOR")
                 if self.matchType("COP"):
-                    self.cop(node)
+                    self.cop(node2)
                 else:
                     raise Exception("Expected COP")
                 while True:
-                    self.expression(node)
+                    self.expression(node2)
                     if self.matchType("RPAREN"):
                         self.consume()
                         break
@@ -411,7 +412,7 @@ class Parser:
 
 def printTree(node: Node):
         if node.children == []:
-            return node.val
+            return f"{node.type}:{node.val}"
         string = str(node.type) + "("
         i = True
         for c in node.children:

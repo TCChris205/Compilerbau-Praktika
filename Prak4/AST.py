@@ -17,7 +17,6 @@ class OPERATION(Interface):
 
     def __init__(self):
         super().__init__()
-        self.type = ""
         self.expressions = [] 
 
     def getChildren(self):
@@ -26,7 +25,7 @@ class OPERATION(Interface):
     def add(self, Interface):
         self.expressions.append(Interface)
     def toString(self):
-        s = "(OPERATION " + self.type + " "
+        s = "(OPERATION "
 
         for c in self.getChildren():
             s += c.toString() + " "
@@ -36,17 +35,20 @@ class OPERATION(Interface):
 class CALL(Interface):
     def __init__(self):
         super().__init__()
-        self.var = ""
+        self.var = None
         self.expressions = [] 
 
     def getChildren(self):
         return self.expressions
 
     def add(self, Interface):
-        self.expressions.append(Interface)
+        if self.var is None:
+            self.var = Interface
+        else:
+            self.expressions.append(Interface)
     
     def toString(self):
-        s = "(CALL " + self.var + " "
+        s = "(CALL "
 
         for c in self.getChildren():
             s += c.toString() + " "
@@ -91,34 +93,46 @@ class STR(Interface):
     
 class DEF(Interface):
     def __init__(self):
-        self.name = ""
+        self.name = None
         self.value = None
     def getChildren(self):
-        return self.value
+        return [self.name , self.value]
     def add(self, Interface):
-        if(self.parameter is None):
-            self.parameter= Interface
-        else: raise Exception("def can't have more than one Parameter")
+        if(self.name is None):
+            self.name = Interface
+        elif(self.value is None):
+            self.value = Interface
+        else: raise Exception("def can't have more than two Parameter")
 
     def toString(self):
-        return "(DEF " + self.name + " " + self.getChildren().toString() + ")"
+        s = "(DEF "
+
+        for c in self.getChildren():
+            s += c.toString() + " "
+        s += ")"
+        return s
     
 class DEFN(Interface):
     def __init__(self):
-        self.name = ""
-        self.parameter = []
+        self.name = None
         self.expression = None
+        self.parameter = []
     def getChildren(self):
         res = []
-        res.append(self.parameter)
+        res.append(self.name)
         res.append(self.expression)
-        return res
+        return res + self.parameter
     
     def add(self, Interface):
-        self.expressions.append(Interface)
+        if(self.name is None):
+            self.name = Interface
+        elif(self.expression is None):
+            self.expression = Interface
+        else:
+            self.parameter.append(Interface)
     
     def toString(self):
-        s = "(DEFN " + self.name + " "
+        s = "(DEFN "
         for c in self.parameter:
             s += c.toString() + " "
         s += ": " + self.expression.toString()
@@ -127,22 +141,26 @@ class DEFN(Interface):
     
 class LET(Interface):
     def __init__(self):
-        self.name = ""
+        self.name = None
         self.value = None
         self.expressions = []
 
     def getChildren(self):
         l = []
+        l.append(self.name)
         l.append(self.value)
-        l.append(self.expressions)
-        return l
+        return l + self.expressions
     
     def add(self, Interface):
-        self.expressions.append(Interface)
+        if(self.name is None):
+            self.name = Interface
+        elif(self.value is None):
+            self.value = Interface
+        else:
+            self.expressions.append(Interface)
 
     def toString(self):
-        s = "(Let " + self.name + " "
-
+        s = "(Let "
         for c in self.getChildren():
             s += c.toString() + " "
         s += ")"
@@ -176,11 +194,7 @@ class HEAD(Interface):
         else: raise Exception("HEAD cant have more than one List")
 
     def toString(self):
-        s = "(HEAD "
-
-        for c in self.getChildren():
-            s += c.toString() + " "
-        s += ")"
+        s = "(HEAD " + self.list.toString() + ")"
         return s
     
     
@@ -196,11 +210,7 @@ class TAIL(Interface):
         else: raise Exception("Tail cant have more than one List")
 
     def toString(self):
-        s = "(Tail "
-
-        for c in self.getChildren():
-            s += c.toString() + " "
-        s += ")"
+        s = "(TAIL " + self.list.toString() + ")"
         return s
     
 class NTH(Interface):
@@ -255,7 +265,7 @@ class IF(Interface):
         if self.elsePart is None:
             s += ")"
         else:
-            s += " ELSE " + self.elsePart + ")"
+            s += " ELSE " + self.elsePart.toString() + ")"
         return s
         
     
@@ -316,6 +326,32 @@ class ID(Interface):
     def toString(self):
         return self.value
     
+class COP(Interface):
+
+    def isTerminal(self):
+        return True
+    def __init__(self, name):
+        self.value = name
+    def getChildren(self):
+        return None
+    def add(self, Interface):
+        raise Exception("COP can't have Children")
+    def toString(self):
+        return self.value
+    
+class AOP(Interface):
+
+    def isTerminal(self):
+        return True
+    def __init__(self, name):
+        self.value = name
+    def getChildren(self):
+        return None
+    def add(self, Interface):
+        raise Exception("AOP can't have Children")
+    def toString(self):
+        return self.value
+    
 class Bool(Interface):
     def isTerminal(self):
         return True
@@ -346,17 +382,20 @@ class Start(Interface):
     def toString(self):
         s = "(Start "
 
-        for c in self.children:
+        for c in self.getChildren():
             s += c.toString() + " "
         s += ")"
         return s
 
 
 def StartAst(parseTree: Node)-> Interface:
-    return ToAst(parseTree, None)
+    start = ToAst(parseTree, None)
+    start.expressions.pop()
+    return start
 
 def ToAst(parseTree: Node,AST: Interface)-> Interface:
     match(parseTree.type):
+        case "EOF": return None
         case "START":
             s = Start()
             for c in parseTree.children:
@@ -373,6 +412,10 @@ def ToAst(parseTree: Node,AST: Interface)-> Interface:
             return NUM(parseTree.val)
         case "ID": 
             return ID(parseTree.val)
+        case "COP": 
+            return COP(parseTree.val)
+        case "AOP": 
+            return AOP(parseTree.val)
         case _: return proccesOther(parseTree,AST)
 
     
@@ -380,17 +423,14 @@ def proccesOther(parseTree: Node,AST: Interface) -> Interface:
     
     match(parseTree.type):
         case "EXPR":
-            for c in parseTree.children:
-                AST.add(ToAst(c,AST))
-            return AST
+            return ToAst(parseTree.children[0],AST)
         case "LITERAL":
-            for c in parseTree.children:
-                AST.add(ToAst(c,AST))
-            return AST
+            return ToAst(parseTree.children[0],AST)
         case "CALL":
+            v = CALL()
             for c in parseTree.children:
-                AST.add(ToAst(c,AST))
-            return AST
+                v.add(ToAst(c, v))
+            return v
         case "PRINT":
             print = PRINT()
             for c in parseTree.children:
@@ -442,22 +482,17 @@ def proccesOther(parseTree: Node,AST: Interface) -> Interface:
                 v.add(ToAst(c,v))
             return v
         case "DO":
-            v = TAIL()
+            v = DO()
             for c in parseTree.children:
                 v.add(ToAst(c,v))
             return v
-        case "COP":
+        case "OPERATOR":
             v = OPERATION()
             v.type = parseTree.val
             for c in parseTree.children:
                 v.add(ToAst(c,v))
             return v
-        case "AOP":
-            v = OPERATION()
-            v.type = parseTree.val
-            for c in parseTree.children:
-                v.add(ToAst(c,v))
-            return v
+
         case _: raise Exception("Unexpected Node: " + parseTree.type)
 
 if __name__ == "__main__":

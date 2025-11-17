@@ -1,3 +1,43 @@
+;;    bindings      use names here
+(let  (name value)  (code that uses name))
+
+(def x 99)   ;; globale Variable x
+(def y 101)  ;; globale Variable y
+(def z 42)   ;; globale Variable z
+(let (x 1   ;; lokales x mit Wert 1(verdeckt globales x)
+      y 2)  ;; lokales y mit Wert 2
+     (+ x y z))  ;; 1+2+42
+
+(defn  hello
+       (n)
+       (let (l 42)  ;; l is valid in this scope
+            (str "hello " n ": " l)
+       )  ;; end of local scope
+)  ;; end of function definition
+
+(list 1 2 3)          ;; (1 2 3)
+
+(def v (list 1 2 3))  ;; v = (1 2 3)
+v                     ;; (1 2 3)
+
+(head (list 1 2 3))  ;; 1
+(tail (list 1 2 3))  ;; (2 3)
+
+(defn fac (n)
+    (if (< n 2)
+        1
+        (* n (fac (- n 1)))))
+
+(do
+    (print "wuppie")
+    (print "fluppie")
+    (print "foo")
+    (print "bar"))
+
 (if (< 1 2)
     (print "true")    ;; then
     (print "false"))  ;; else
+
+(str 42)                              ;; liefert "42" zurück
+(str "wuppie" "fluppie" "foo" "bar")  ;; liefert "wuppiefluppiefoobar" zurück
+(str "one: " 1 ", two: " 2)           ;; liefert "one: 1, two: 2" zurück
