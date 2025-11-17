@@ -341,7 +341,24 @@ class Parser:
 
         node = node.addChild("IF")
         self.consume()
-        self.expression(node)
+        match(self.current().type):
+            case "TRUE":
+                self.true()
+            case "FALSE":
+                self.false()
+            case "LPAREN":
+                self.consume()
+                if self.matchType("COP"):
+                    self.cop()
+                else:
+                    raise Exception("Expected COP")
+                while True:
+                    self.expression(node)
+                    if self.matchType("RPAREN"):
+                        break
+            case _:
+                raise Exception("Expected TRUE, FALSE or LPAREN")
+
         self.expression(node)
         if not self.lookahead().type == "RPAREN":
             self.expression(node)
