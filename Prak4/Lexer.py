@@ -76,6 +76,8 @@ class Lexer:
                         self.go_to_next_line()
                         if (self.pos >= len(self.text)):
                             return Token("EOF")
+                    else:
+                        raise Exception("Expected second Semicolon.")
                 case '"':   
                     return self.stringToken()
                 case _: 
