@@ -10,10 +10,9 @@ start
 
 line
     : statement
-    | functionDeclaration
     | classDeclaration
     ;
-
+// ----------------------- class -----------------------
 classDeclaration
     : CLASS_KEY ID (COLON PUBLIC_KEY ID)? LBLOCKPAREN
       PUBLIC_KEY COLON classMember*
@@ -35,76 +34,106 @@ methodDefinition
     ;
 
 constructorDefinition
-    : Id LPAREN paramList? RPAREN block
+    : ID LPAREN paramList? RPAREN block
     ;
     
 paramList
     : typeReference ID (COMMA typeReference ID)*
     ;
-
+// ----------------------- statment -----------------------
 statement
-    :   variableDeclaration SEMICOL
-    |   functionCall SEMICOL   
-    |   expression SEMICOL
+    :   block
+    |   functionDeclaration
+    |   variableDeclaration
+    |   returnStatement
     |   ifStatement
     |   whileLoop
-    |   returnStatement
+    |   expression SEMICOL
     ;
 
-expression
-    :   idDotChain
-    |   comparison
-    |   functionCall
-    |   boolean
-    |   NUM
-    |   STRING
-    |   CHAR
-    |   NOT expression
-    |   LPAREN expression RPAREN
+block
+    :   LBLOCKPAREN statement* RBLOCKPAREN
     ;
 
-assignment
-    :   idDotChain DEEPCOPY? ASSIGN expression
+functionDeclaration
+    :   type ID LPAREN paramList? RPAREN (ASSIGN expression)? block
     ;
 
-comparison
-    :   expression comparator expression 
+variableDeclaration
+    :   type ID (ASSIGN expression)? SEMICOL
+    |   type DEEPCOPY ID ASSIGN ID ((LPAREN args? RPAREN)? DOT ID)* SEMICOL
     ;
 
-comparator
-    :   NEQ
-    |   EQ
-    |   LT
-    |   LE
-    |   GT
-    |   GE
+returnStatement
+    :   RETURN_KEY expression? SEMICOL
     ;
 
 ifStatement
-    :   IF_KEY LPAREN expression RPAREN block ELSE_KEY block
-    |   IF_KEY LPAREN expression RPAREN block
+    :   IF_KEY LPAREN expression RPAREN block (ELSE_KEY block)?
     ;
 
 whileLoop
     :   WHILE_KEY LPAREN expression RPAREN block
     ;
 
-functionCall
-    :   idDotChain LPAREN (expression COMMA)* RPAREN
+// ----------------------- expression -----------------------
+
+expression
+    :   assignment
+    |   logicalOr
     ;
 
-variableDeclaration
-    :   type ID ASSIGN expression
-    |   type ID
+assignment
+    : ID (DOT ID)* ASSIGN logicalOr
     ;
 
-functionDeclaration
-    :   type ID LPAREN (expression, COMMA)* RPAREN block
+logicalOr
+    : logicalAnd (OR logicalAnd)*
     ;
 
-idDotChain
-    : (ID | functionCall) (DOT (ID | functionCall))*
+logicalAnd
+    : equal (AND equal)*
     ;
+
+equal
+    : relation ((EQ|NEQ) relation)*
+    ;
+
+relation
+    : arith ((LT|LE|GT|GE) arith)*
+    ;
+
+arith
+    : term ((PLUS|MINUS) term)*
+    ;
+
+term
+    : unary ((MUL|DIV|MOD) unary)*
+    ;
+
+unary
+    : NOT? ID (LPAREN args? RPAREN)? (DOT ID (LPAREN args? RPAREN)?)*
+    | NOT? (PLUS|MINUS)? literals
+    | NOT? LPAREN expression RPAREN
+    ;
+
+args
+    : expression (COMMA expression)*
+    ;
+
+literals
+    : NUM
+    | CHAR
+    | STRING
+    | TRUE
+    | FALSE
+    | ID
+    ;
+
+
+
+
+
 
 typeReference
     : type DEEPCOPY?
@@ -120,14 +149,7 @@ primitiveTypeKey
     |   BOOL_KEY
     |   STRING_KEY
     |   CHAR_KEY
-    ;
-
-returnStatement
-    :   RETURN_KEY expression? SEMICOL
-    ;
-
-block
-    :   LBLOCKPAREN (statement)* RBLOCKPAREN
+    |   VOID_KEY
     ;
 
 boolean
@@ -145,8 +167,6 @@ INT_KEY     : 'int' ;
 BOOL_KEY    : 'bool' ;
 CHAR_KEY    : 'char' ;
 STRING_KEY  : 'string' ;
-TRUE_KEY    : 'true' ;
-FALSE_KEY   : 'false' ;
 IF_KEY      : 'if' ;
 ELSE_KEY    : 'else' ;
 WHILE_KEY   : 'while' ;
@@ -193,19 +213,20 @@ MOD         : '%' ;
 // LITERALS
 
 NUM         : [0-9]+ ;
-CHAR        : "'" ([a-zA-Z0-9]_") | ('\'['n'|'t'|'r'|'0'|"'"]) "'" ;
+CHAR        : '\'' (~['] | '\\' [ntr0'\\]) '\'' ;
+
 STRING      : '"' (~["\\] | '\\' .)* '"' ;
 
 // Symbols
 DOT         : '.' ;
 SEMICOL     : ';' ;
-COLON       : ';' ;
+COLON       : ':' ;
 LPAREN      : '(' ;
 RPAREN      : ')' ;
 COMMA       : ',';
 LBLOCKPAREN : '{';
 RBLOCKPAREN : '}';
-DEEPCOPY   : '&'
+DEEPCOPY    : '&';
 
 TRUE        : 'true' ;
 FALSE       : 'false' ;
