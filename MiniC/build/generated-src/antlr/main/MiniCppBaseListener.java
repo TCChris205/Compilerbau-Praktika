@@ -160,6 +160,18 @@ public class MiniCppBaseListener implements MiniCppListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIdChain(MiniCppParser.IdChainContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIdChain(MiniCppParser.IdChainContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterReturnStatement(MiniCppParser.ReturnStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}

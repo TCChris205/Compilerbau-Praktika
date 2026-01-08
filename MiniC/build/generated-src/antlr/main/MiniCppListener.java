@@ -127,6 +127,16 @@ public interface MiniCppListener extends ParseTreeListener {
 	 */
 	void exitVariableDeclaration(MiniCppParser.VariableDeclarationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link MiniCppParser#idChain}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdChain(MiniCppParser.IdChainContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link MiniCppParser#idChain}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdChain(MiniCppParser.IdChainContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link MiniCppParser#returnStatement}.
 	 * @param ctx the parse tree
 	 */

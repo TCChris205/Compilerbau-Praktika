@@ -82,6 +82,12 @@ public interface MiniCppVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitVariableDeclaration(MiniCppParser.VariableDeclarationContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link MiniCppParser#idChain}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIdChain(MiniCppParser.IdChainContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link MiniCppParser#returnStatement}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

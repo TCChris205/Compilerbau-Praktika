@@ -1,4 +1,4 @@
-grammar MiniCpp;
+(grammar MiniCpp;
 
 // --------------------------
 // PARSER REGELN
@@ -36,7 +36,7 @@ methodDefinition
 constructorDefinition
     : ID LPAREN paramList? RPAREN block
     ;
-    
+
 paramList
     : typeReference ID (COMMA typeReference ID)*
     ;
@@ -61,7 +61,12 @@ functionDeclaration
 
 variableDeclaration
     :   type ID (ASSIGN expression)? SEMICOL
-    |   type DEEPCOPY ID ASSIGN ID ((LPAREN args? RPAREN)? DOT ID)* SEMICOL
+    |   type DEEPCOPY ID ASSIGN (idChain DOT)? ID SEMICOL
+    ;
+
+idChain
+    : ID (DOT idChain)?
+    | ID (LPAREN args? RPAREN) (DOT idChain)?
     ;
 
 returnStatement
@@ -112,7 +117,7 @@ term
     ;
 
 unary
-    : NOT? ID (LPAREN args? RPAREN)? (DOT ID (LPAREN args? RPAREN)?)*
+    : NOT? idChain
     | NOT? (PLUS|MINUS)? literals
     | NOT? LPAREN expression RPAREN
     ;
@@ -153,7 +158,7 @@ primitiveTypeKey
     ;
 
 boolean
-    : TRUE 
+    : TRUE
     | FALSE
     ;
 
