@@ -1,4 +1,4 @@
-grammar Blatt8;
+grammar MiniCpp;
 
 // --------------------------
 // PARSER REGELN
