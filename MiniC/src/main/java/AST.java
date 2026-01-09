@@ -263,27 +263,78 @@ public class AST {
         }
     }
 
-    public Unary toAST(MiniCppParser.UnaryContext e) {
+    public ASTToken toAST(MiniCppParser.UnaryContext e) {
         if (e.expression() != null){
-            
+            //expression
         }
         if (e.literals() != null) {
-            String vorzeichen;
+            String vorzeichen = null;
             if (e.PLUS() != null) {
                 vorzeichen = "+";
             }
             if (e.MINUS() != null) {
                 vorzeichen = "-";
             }
+            String type;
+            String value;
+            if (e.literals().NUM() != null){
+                type = "num";
+                value = e.literals().NUM().getText();
+                return new Literal(type, value, vorzeichen);
+            }
+            if (e.literals().CHAR() != null){
+                type = "char";
+                value = e.literals().CHAR().getText();
+                return new Literal(type, value, vorzeichen);
+            }
+            if (e.literals().STRING() != null){
+                type = "string";
+                value = e.literals().STRING().getText();
+                return new Literal(type, value, vorzeichen);
+            }
+            if (e.literals().TRUE() != null){
+                type = "bool";
+                value = e.literals().TRUE().getText();
+                return new Literal(type, value, vorzeichen);
+            }
+            if (e.literals().FALSE() != null){
+                type = "bool";
+                value = e.literals().FALSE().getText();
+                return new Literal(type, value, vorzeichen);
+            }
+            if (e.literals().ID() != null){
+                type = "var";
+                value = e.literals().ID().getText();
+                return new Literal(type, value, vorzeichen);
+            }
             
         }
         if (e.idChain() != null){
-            
+            return toAST(e.idChain());
+        }
+    }
+
+    public ASTToken toAST(MiniCppParser.IdChainContext e) {
+        if (e.LPAREN() != null){
+            //FunctionCall
+            String name = e.ID().getText();
+            Args args;
+            if (e.args() != null) {
+                args = toAST(e.args());
+            }
+            ASTToken next = toAST(e.idChain());
+            return new FunctionCall(name,args,next);
+        }
+        else{
+            //VariableCall
+            String name = e.ID().getText();
+            ASTToken next = toAST(e.idChain());
+            return new VariableCall(name, next);
         }
     }
 
     public Args toAST(MiniCppParser.ArgsContext e) {
-        
+        //expressions
     }
 
     public Literals toAST(MiniCppParser.LiteralsContext e) {
@@ -549,6 +600,50 @@ public class AST {
     }
 
     public class Unary extends ASTToken {
+
+        public void evaluate(){
+            
+        }
+    }
+
+    public class VariableCall extends ASTToken {
+
+        String name;
+        ASTToken next;
+        public VariableCall(String name, ASTToken next) {
+            this.name = name;
+            this.next = next;
+        }
+        public void evaluate(){
+            
+        }
+    }
+
+    public class Literal extends ASTToken {
+        String type;
+        String value;
+        String vorzeichen;
+        public Literal(String type, String value, String vorzeichen) {
+            this.type = type;
+            this.value = value;
+            this.vorzeichen = vorzeichen;
+        }
+        public void evaluate(){
+            
+        }
+    }
+
+    public class FunctionCall extends ASTToken {
+
+        String name;
+        Args args;
+        ASTToken next;
+
+        public FunctionCall(String name, Args args, ASTToken next) {
+            this.name = name;
+            this.args = args;
+            this.next = next;
+        }
 
         public void evaluate(){
             
