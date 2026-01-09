@@ -1,4 +1,4 @@
-(grammar MiniCpp;
+grammar MiniCpp;
 
 // --------------------------
 // PARSER REGELN
@@ -89,7 +89,7 @@ expression
     ;
 
 assignment
-    : ID (DOT ID)* ASSIGN logicalOr
+    : (idChain DOT)? ID ASSIGN logicalOr
     ;
 
 logicalOr
@@ -134,11 +134,6 @@ literals
     | FALSE
     | ID
     ;
-
-
-
-
-
 
 typeReference
     : type DEEPCOPY?

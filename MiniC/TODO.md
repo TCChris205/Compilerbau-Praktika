@@ -54,16 +54,18 @@
 ## AST
 
 - [ ] Expression entfernen
-  - [ ] statement
-  - [ ] functionDeclaration
+  - [x] statement
+  - [x] functionDeclaration
   - [ ] variableDeclaration
   - [x] returnStatement
-  - [ ] ifStatement
-  - [ ] whileLoop
-  - [ ] unary
-  - [ ] args
+  - [x] ifStatement
+  - [x] whileLoop
+  - [x] unary
+  - [x] args
   - [x] Klasse entfernen
-- [ ] DotChains???
+- [x] NOT Remove 
+
+- [ ] DotChains
 
 ## Sem. Analyse
 
