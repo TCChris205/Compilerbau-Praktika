@@ -53,10 +53,10 @@
 
 ## AST
 
-- [ ] Expression entfernen
+- [x] Expression entfernen
   - [x] statement
   - [x] functionDeclaration
-  - [ ] variableDeclaration
+  - [x] variableDeclaration
   - [x] returnStatement
   - [x] ifStatement
   - [x] whileLoop

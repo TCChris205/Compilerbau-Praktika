@@ -1,13 +1,10 @@
 import java.util.ArrayList;
-
-import javax.sound.sampled.Line;
-
 import org.antlr.v4.runtime.tree.ParseTree;
-import org.stringtemplate.v4.compiler.CodeGenerator.region_return;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class AST {
 
-// ---------------------------- METHODS ----------------------------
+    // ---------------------------- METHODS ----------------------------
 
     public ASTToken toAST(ParseTree e) {
         return null;
@@ -39,8 +36,7 @@ public class AST {
                 if (statment.expression() != null) {
                     if (statment.expression().assignment() != null) {
                         lines.add(toAST(statment.expression().assignment()));
-                    }
-                    else if (statment.expression().logicalOr() != null) {
+                    } else if (statment.expression().logicalOr() != null) {
                         lines.add(toAST(statment.expression().logicalOr()));
                     }
                 }
@@ -55,7 +51,7 @@ public class AST {
     public ClassDeclaration toAST(MiniCppParser.ClassDeclarationContext e) {
         String className = e.ID(0).getText();
         String parentClass = null;
-        if(e.ID().size() == 2){
+        if (e.ID().size() == 2) {
             parentClass = e.ID(1).getText();
         }
         ArrayList<ASTToken> members = new ArrayList<>();
@@ -76,7 +72,7 @@ public class AST {
     public AttributeDeclaration toAST(MiniCppParser.AttributeDeclarationContext e) {
         String attributeName = e.ID().getText();
         String type = e.type().getText();
-        return new AttributeDeclaration(attributeName,type);
+        return new AttributeDeclaration(attributeName, type);
     }
 
     public MethodDefinition toAST(MiniCppParser.MethodDefinitionContext e) {
@@ -99,42 +95,42 @@ public class AST {
     }
 
     public ParamList toAST(MiniCppParser.ParamListContext e) {
-        
+
         ArrayList<String> type = new ArrayList<>();
         ArrayList<String> name = new ArrayList<>();
         for (int i = 0; i < e.ID().size(); i++) {
             type.add(e.typeReference(i).getText());
             name.add(e.ID(i).getText());
         }
-        return new ParamList(type,name);
+        return new ParamList(type, name);
     }
 
     public Block toAST(MiniCppParser.BlockContext e) {
 
         ArrayList<ASTToken> lines = new ArrayList<>();
-        
+
         for (MiniCppParser.StatementContext statment : e.statement()) {
-                if (statment.block() != null) {
-                    lines.add(toAST(statment.block()));
-                }
-                if (statment.functionDeclaration() != null) {
-                    lines.add(toAST(statment.functionDeclaration()));
-                }
-                if (statment.variableDeclaration() != null) {
-                    lines.add(toAST(statment.variableDeclaration()));
-                }
-                if (statment.returnStatement() != null) {
-                    lines.add(toAST(statment.returnStatement()));
-                }
-                if (statment.ifStatement() != null) {
-                    lines.add(toAST(statment.ifStatement()));
-                }
-                if (statment.whileLoop() != null) {
-                    lines.add(toAST(statment.whileLoop()));
-                }
-                if (statment.expression() != null) {
-                    lines.add(toAST(statment.expression()));
-                }
+            if (statment.block() != null) {
+                lines.add(toAST(statment.block()));
+            }
+            if (statment.functionDeclaration() != null) {
+                lines.add(toAST(statment.functionDeclaration()));
+            }
+            if (statment.variableDeclaration() != null) {
+                lines.add(toAST(statment.variableDeclaration()));
+            }
+            if (statment.returnStatement() != null) {
+                lines.add(toAST(statment.returnStatement()));
+            }
+            if (statment.ifStatement() != null) {
+                lines.add(toAST(statment.ifStatement()));
+            }
+            if (statment.whileLoop() != null) {
+                lines.add(toAST(statment.whileLoop()));
+            }
+            if (statment.expression() != null) {
+                lines.add(toAST(statment.expression()));
+            }
         }
         return new Block(lines);
     }
@@ -145,13 +141,13 @@ public class AST {
         ParamList paramList = toAST(e.paramList());
         ASTToken expression = null;
 
-        if (e.expression().assignment() != null) {
-            expression = toAST(e.expression().assignment());
+        if (e.expression() != null) {
+            if (e.expression().assignment() != null) {
+                expression = toAST(e.expression().assignment());
+            } else if (e.expression().logicalOr() != null) {
+                expression = toAST(e.expression().logicalOr());
+            }
         }
-        else if (e.expression().logicalOr() != null) {
-            expression = toAST(e.expression().logicalOr());
-        }
-
         Block block = toAST(e.block());
 
         return new FunctionDeclaration(type, functionName, paramList, expression, block);
@@ -161,24 +157,21 @@ public class AST {
         String type = e.type().getText();
         boolean deepcopy = e.DEEPCOPY() != null;
         String varName = e.ID(0).getText();
-        if(deepcopy)
-        {
+        if (deepcopy) {
             VariableCall call = new VariableCall(e.ID(1).getText(), null);
-            if(e.idChain() != null)
-            {
+            if (e.idChain() != null) {
                 IdChainElement start = (IdChainElement) toAST(e.idChain());
                 IdChainElement i = start;
-                while(i.GetNext() != null)
-                {
+                while (i.GetNext() != null) {
                     i = i.GetNext();
                 }
                 i.SetNext(call);
                 return new VariableDeclaration(type, varName, start);
             }
-            return new VariableDeclaration(type, varName, call);
+            return new VariableDeclaration(type, varName, (IdChainElement) call);
         }
         ASTToken expression = null;
-        
+
         if (e.expression().assignment() != null) {
             expression = toAST(e.expression().assignment());
         }
@@ -190,7 +183,7 @@ public class AST {
 
     public ReturnStatement toAST(MiniCppParser.ReturnStatementContext e) {
         ASTToken expression = null;
-        
+
         if (e.expression().assignment() != null) {
             expression = toAST(e.expression().assignment());
         }
@@ -205,8 +198,7 @@ public class AST {
 
         if (e.expression().assignment() != null) {
             expression = toAST(e.expression().assignment());
-        }
-        else if (e.expression().logicalOr() != null) {
+        } else if (e.expression().logicalOr() != null) {
             expression = toAST(e.expression().logicalOr());
         }
 
@@ -225,8 +217,7 @@ public class AST {
 
         if (e.expression().assignment() != null) {
             expression = toAST(e.expression().assignment());
-        }
-        else if (e.expression().logicalOr() != null) {
+        } else if (e.expression().logicalOr() != null) {
             expression = toAST(e.expression().logicalOr());
         }
 
@@ -237,15 +228,13 @@ public class AST {
         ASTToken idchain = toAST(e.idChain());
         String id = e.ID().getText();
         ASTToken logicalOr = toAST(e.logicalOr());
-        
+
         VariableCall call = new VariableCall(e.ID().getText(), null);
-        if(e.idChain() != null)
-        {
+        if (e.idChain() != null) {
             IdChainElement start = (IdChainElement) toAST(e.idChain());
             IdChainElement i = start;
-            while(i.GetNext() != null)
-            {
-                 i = i.GetNext();
+            while (i.GetNext() != null) {
+                i = i.GetNext();
             }
             i.SetNext(call);
             return new Assignment(start, logicalOr);
@@ -257,125 +246,149 @@ public class AST {
         if (e.logicalAnd().size() == 1) {
             return toAST(e.logicalAnd(0));
         }
-        
-        String type = null;
-        if (e.OR()!= null){
-            type = "||";
+
+        ArrayList<String> operation = new ArrayList<>();
+        ArrayList<ASTToken> element = new ArrayList<>();
+
+        for (int i = 0; i < e.OR().size(); i++) {
+            operation.add(e.OR(i).getText());
+            element.add(toAST(e.logicalAnd(i+1)));
         }
-
-
-        return new Operation(toAST(e.logicalAnd(0)),toAST(e.logicalAnd(1)),type);
+        return new Operation(element,operation);
     }
 
     public ASTToken toAST(MiniCppParser.LogicalAndContext e) {
         if (e.equal().size() == 1) {
             return toAST(e.equal(0));
         }
+
+        ArrayList<String> operation = new ArrayList<>();
+        ArrayList<ASTToken> element = new ArrayList<>();
         
-        String type = null;
-        if (e.AND()!= null){
-            type = "&&";
+        for (int i = 0; i < e.AND().size(); i++) {
+            operation.add(e.AND(i).getText());
+            element.add(toAST(e.equal(i+1)));
         }
-
-
-        return new Operation(toAST(e.equal(0)),toAST(e.equal(1)),type);
+        return new Operation(element,operation);
     }
 
     public ASTToken toAST(MiniCppParser.EqualContext e) {
         if (e.relation().size() == 1) {
             return toAST(e.relation(0));
         }
+
+        ArrayList<String> operation = new ArrayList<>();
+        ArrayList<ASTToken> element = new ArrayList<>();
         
-        String type = null;
-        if (e.EQ()!= null){
-            type = "==";
-        }
-        if (e.NEQ()!= null){
-            type = "!=";
+        for (ParseTree tree : e.children) {
+            if (tree instanceof TerminalNode) {
+                TerminalNode t = (TerminalNode) tree;
+                if (t.getText().equals("==")) operation.add("==");
+                if (t.getText().equals("!=")) operation.add("!=");
+
+            }
         }
 
-        return new Operation(toAST(e.relation(0)),toAST(e.relation(1)),type);
+        for (int i = 0; i < e.relation().size(); i++) {
+            element.add(toAST(e.relation(i)));
+        }
+        return new Operation(element,operation);
     }
 
     public ASTToken toAST(MiniCppParser.RelationContext e) {
         if (e.arith().size() == 1) {
             return toAST(e.arith(0));
         }
+
+        ArrayList<String> operation = new ArrayList<>();
+        ArrayList<ASTToken> element = new ArrayList<>();
         
-        String type = null;
-        if (e.LE()!= null){
-            type = "<=";
+        for (ParseTree tree : e.children) {
+            if (tree instanceof TerminalNode) {
+                TerminalNode t = (TerminalNode) tree;
+                if (t.getText().equals("<=")) operation.add("<=");
+                if (t.getText().equals("<")) operation.add("<");
+                if (t.getText().equals(">")) operation.add(">");
+                if (t.getText().equals(">=")) operation.add(">=");
+            }
         }
-        if (e.LT()!= null){
-            type = "<";
+
+        for (int i = 0; i < e.arith().size(); i++) {
+            element.add(toAST(e.arith(i)));
         }
-        if (e.GT()!= null){
-            type = ">";
-        }
-        if (e.GE()!= null){
-            type = ">=";
-        }
-        return new Operation(toAST(e.arith(0)),toAST(e.arith(1)),type);
+        return new Operation(element,operation);
     }
 
     public ASTToken toAST(MiniCppParser.ArithContext e) {
         if (e.term().size() == 1) {
             return toAST(e.term(0));
         }
+
+        ArrayList<String> operation = new ArrayList<>();
+        ArrayList<ASTToken> element = new ArrayList<>();
         
-        String type = null;
-        if (e.PLUS()!= null){
-            type = "+";
+        
+        for (ParseTree tree : e.children) {
+            if (tree instanceof TerminalNode) {
+                TerminalNode t = (TerminalNode) tree;
+                if (t.getText().equals("+")) operation.add("+");
+                if (t.getText().equals("-")) operation.add("-");
+            }
         }
-        if (e.MINUS()!= null){
-            type = "-";
+
+        for (int i = 0; i < e.term().size(); i++) {
+            element.add(toAST(e.term(i)));
         }
-        return new Operation(toAST(e.term(0)),toAST(e.term(1)),type);
+        return new Operation(element,operation);
     }
 
     public ASTToken toAST(MiniCppParser.TermContext e) {
         if (e.unary().size() == 1) {
             return toAST(e.unary(0));
         }
-        String type = null;
-        if (e.MOD()!= null){
-            type = "%";
+        ArrayList<String> operation = new ArrayList<>();
+        ArrayList<ASTToken> element = new ArrayList<>();
+        
+        
+        for (ParseTree tree : e.children) {
+            if (tree instanceof TerminalNode) {
+                TerminalNode t = (TerminalNode) tree;
+                if (t.getText().equals("*")) operation.add("*");
+                if (t.getText().equals("/")) operation.add("/");
+                if (t.getText().equals("%")) operation.add("%");
+            }
         }
-        if (e.DIV()!= null){
-            type = "/";
+
+        for (int i = 0; i < e.unary().size(); i++) {
+            element.add(toAST(e.unary(i)));
         }
-        if (e.MUL()!= null){
-            type = "*";
-        }
-        return new Operation(toAST(e.unary(0)),toAST(e.unary(1)),type);
+        return new Operation(element,operation);
     }
 
     public ASTToken toAST(MiniCppParser.UnaryContext e) {
         boolean invert;
         if (e.NOT() != null) {
             invert = true;
-        }
-        else{
+        } else {
             invert = false;
         }
 
-        
         if (e.expression() != null) {
             ASTToken expression = null;
 
             if (e.expression().assignment() != null) {
                 expression = toAST(e.expression().assignment());
-            }
-            else if (e.expression().logicalOr() != null) {
+            } else if (e.expression().logicalOr() != null) {
                 expression = toAST(e.expression().logicalOr());
             }
-            
+
             if (invert) {
                 return new NOT(expression);
             } else {
                 return expression;
             }
         }
+
         if (e.literals() != null) {
             String vorzeichen = null;
             if (e.PLUS() != null) {
@@ -387,60 +400,59 @@ public class AST {
             String type;
             String value;
             Literal literal = null;
-            if (e.literals().NUM() != null){
+            if (e.literals().NUM() != null) {
                 type = "num";
                 value = e.literals().NUM().getText();
                 literal = new Literal(type, value, vorzeichen);
             }
-            if (e.literals().CHAR() != null){
+            if (e.literals().CHAR() != null) {
                 type = "char";
                 value = e.literals().CHAR().getText();
                 literal = new Literal(type, value, vorzeichen);
             }
-            if (e.literals().STRING() != null){
+            if (e.literals().STRING() != null) {
                 type = "string";
                 value = e.literals().STRING().getText();
                 literal = new Literal(type, value, vorzeichen);
             }
-            if (e.literals().TRUE() != null){
+            if (e.literals().TRUE() != null) {
                 type = "bool";
                 value = e.literals().TRUE().getText();
                 literal = new Literal(type, value, vorzeichen);
             }
-            if (e.literals().FALSE() != null){
+            if (e.literals().FALSE() != null) {
                 type = "bool";
                 value = e.literals().FALSE().getText();
                 literal = new Literal(type, value, vorzeichen);
             }
-            if (e.literals().ID() != null){
+            if (e.literals().ID() != null) {
                 type = "var";
                 value = e.literals().ID().getText();
                 literal = new Literal(type, value, vorzeichen);
             }
             if (invert) {
                 return new NOT(literal);
-            }
-            else{
+            } else {
                 return literal;
             }
-            
         }
-        if (e.idChain() != null){ //!foo.bar()
+
+        if (e.idChain() != null) { // !foo.bar()
             if (invert) {
                 return new NOT(toAST(e.idChain()));
-            }
-            else{
+            } else {
                 return toAST(e.idChain());
             }
         }
+
         return null;
     }
 
     public ASTToken toAST(MiniCppParser.IdChainContext e) {
         if (e == null) return null;
 
-        if (e.LPAREN() != null){
-            //FunctionCall
+        if (e.LPAREN() != null) {
+            // FunctionCall
             String name = e.ID().getText();
             Args args = null;
             if (e.args() != null) {
@@ -448,9 +460,8 @@ public class AST {
             }
             ASTToken next = toAST(e.idChain());
             return new FunctionCall(name, args, next);
-        }
-        else{
-            //VariableCall
+        } else {
+            // VariableCall
             String name = e.ID().getText();
             ASTToken next = toAST(e.idChain());
             return new VariableCall(name, next);
@@ -464,8 +475,7 @@ public class AST {
         for (MiniCppParser.ExpressionContext expr : e.expression())
             if (expr.assignment() != null) {
                 expressions.add(toAST(expr.assignment()));
-            }
-            else if (expr.logicalOr() != null) {
+            } else if (expr.logicalOr() != null) {
                 expressions.add(toAST(expr.logicalOr()));
             }
 
@@ -475,32 +485,26 @@ public class AST {
     public ASTToken toAST(MiniCppParser.TypeReferenceContext e) {
         if (e.DEEPCOPY() != null) {
             return new TypeReference(toAST(e.type()));
-        }
-        else{
+        } else {
             return toAST(e.type());
         }
-        
     }
 
     public Type toAST(MiniCppParser.TypeContext e) {
         if (e.ID() != null) {
             return new Type(e.ID().getText());
-        }
-        else{
+        } else {
             if (e.primitiveTypeKey().INT_KEY() != null) {
                 return new Type("int");
             }
             if (e.primitiveTypeKey().BOOL_KEY() != null) {
                 return new Type("bool");
-                
             }
             if (e.primitiveTypeKey().STRING_KEY() != null) {
                 return new Type("string");
-                
             }
             if (e.primitiveTypeKey().CHAR_KEY() != null) {
                 return new Type("char");
-                
             }
             if (e.primitiveTypeKey().VOID_KEY() != null) {
                 return new Type("void");
@@ -509,25 +513,29 @@ public class AST {
         }
     }
 
-// ---------------------------- CLASSES ----------------------------
+    // ---------------------------- CLASSES ----------------------------
 
     public abstract class ASTToken {
         public abstract void evaluate();
+
+        @Override
+        public abstract String toString();
     }
 
     public class Start extends ASTToken {
         private ArrayList<ASTToken> lines;
 
-        public Start(ArrayList<ASTToken> lines)
-        {
+        public Start(ArrayList<ASTToken> lines) {
             this.lines = lines;
         }
 
-        public void evaluate(){
+        public void evaluate() {}
 
+        @Override
+        public String toString() {
+            return "Start(lines=" + lines + ")";
         }
     }
-
 
     public class ClassDeclaration extends ASTToken {
 
@@ -539,27 +547,37 @@ public class AST {
             this.className = className;
             this.parentClass = parentClass;
             this.members = members;
-            
         }
-        
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "ClassDeclaration(className="
+                    + className
+                    + ", parentClass="
+                    + parentClass
+                    + ", members="
+                    + members
+                    + ")";
         }
     }
 
     public class AttributeDeclaration extends ASTToken {
-        
+
         private String type;
         private String name;
-            
-        public AttributeDeclaration(String type, String name)
-        {
+
+        public AttributeDeclaration(String type, String name) {
             this.type = type;
-            this.name = name;   
+            this.name = name;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "AttributeDeclaration(type=" + type + ", name=" + name + ")";
         }
     }
 
@@ -571,7 +589,8 @@ public class AST {
         private ParamList parameter;
         private Block block;
 
-        public MethodDefinition(boolean virtual, String type, String methodName, ParamList paramList, Block block) {
+        public MethodDefinition(
+                boolean virtual, String type, String methodName, ParamList paramList, Block block) {
             this.virtual = virtual;
             this.type = type;
             this.methodName = methodName;
@@ -579,26 +598,47 @@ public class AST {
             this.block = block;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "MethodDefinition(virtual="
+                    + virtual
+                    + ", type="
+                    + type
+                    + ", methodName="
+                    + methodName
+                    + ", parameter="
+                    + parameter
+                    + ", block="
+                    + block
+                    + ")";
         }
     }
 
     public class Constructor extends ASTToken {
-        
+
         private String className;
         private Block block;
         private ParamList paramList;
-        
-        public Constructor(String className, Block block, ParamList paramList)
-        {
+
+        public Constructor(String className, Block block, ParamList paramList) {
             this.className = className;
             this.block = block;
             this.paramList = paramList;
         }
-        
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "Constructor(className="
+                    + className
+                    + ", block="
+                    + block
+                    + ", paramList="
+                    + paramList
+                    + ")";
         }
     }
 
@@ -606,24 +646,33 @@ public class AST {
 
         private ArrayList<String> type = new ArrayList<>();
         private ArrayList<String> name = new ArrayList<>();
-        public ParamList (ArrayList<String> type, ArrayList<String> name) {
+
+        public ParamList(ArrayList<String> type, ArrayList<String> name) {
             this.type = type;
             this.name = name;
         }
-        
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "ParamList(type=" + type + ", name=" + name + ")";
         }
     }
 
     public class Block extends ASTToken {
 
         ArrayList<ASTToken> lines = new ArrayList<>();
+
         public Block(ArrayList<ASTToken> lines) {
             this.lines = lines;
         }
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "Block(lines=" + lines + ")";
         }
     }
 
@@ -635,7 +684,12 @@ public class AST {
         private ASTToken expression;
         private Block block;
 
-        public FunctionDeclaration(String type, String functionName, ParamList paramList, ASTToken expression, Block block) {
+        public FunctionDeclaration(
+                String type,
+                String functionName,
+                ParamList paramList,
+                ASTToken expression,
+                Block block) {
             this.type = type;
             this.functionName = functionName;
             this.paramList = paramList;
@@ -643,8 +697,21 @@ public class AST {
             this.expression = expression;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "FunctionDeclaration(type="
+                    + type
+                    + ", functionName="
+                    + functionName
+                    + ", paramList="
+                    + paramList
+                    + ", expression="
+                    + expression
+                    + ", block="
+                    + block
+                    + ")";
         }
     }
 
@@ -655,24 +722,34 @@ public class AST {
         private ASTToken expression = null;
         private IdChainElement varCall;
 
-        public VariableDeclaration(String type, String varName, ASTToken expression)
-        {
+        public VariableDeclaration(String type, String varName, ASTToken expression) {
             this.type = type;
             this.varName = varName;
             this.expression = expression;
         }
 
-        public VariableDeclaration(String type, String varName, IdChainElement varCall)
-        {
+        public VariableDeclaration(String type, String varName, IdChainElement varCall) {
             this.type = type;
             this.varName = varName;
             this.varCall = varCall;
             this.deepcopy = true;
-            
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "VariableDeclaration(deepcopy="
+                    + deepcopy
+                    + ", varName="
+                    + varName
+                    + ", type="
+                    + type
+                    + ", expression="
+                    + expression
+                    + ", varCall="
+                    + varCall
+                    + ")";
         }
     }
 
@@ -684,8 +761,11 @@ public class AST {
             this.expression = expression;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "ReturnStatement(expression=" + expression + ")";
         }
     }
 
@@ -701,8 +781,17 @@ public class AST {
             this.elseBlock = elseBlock;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "IfStatement(expression="
+                    + expression
+                    + ", block="
+                    + block
+                    + ", elseBlock="
+                    + elseBlock
+                    + ")";
         }
     }
 
@@ -710,15 +799,17 @@ public class AST {
 
         private Block block;
         private ASTToken expression;
-        
-        public WhileLoop(Block block, ASTToken expression)
-        {
+
+        public WhileLoop(Block block, ASTToken expression) {
             this.expression = expression;
             this.block = block;
         }
-        
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "WhileLoop(block=" + block + ", expression=" + expression + ")";
         }
     }
 
@@ -727,90 +818,101 @@ public class AST {
         private IdChainElement chain;
         private ASTToken operation;
 
-        public Assignment(IdChainElement chain, ASTToken operation)
-        {
+        public Assignment(IdChainElement chain, ASTToken operation) {
             this.chain = chain;
             this.operation = operation;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "Assignment(chain=" + chain + ", operation=" + operation + ")";
         }
     }
 
     public class Operation extends ASTToken {
+        
+        ArrayList<String> operations;
+        ArrayList<ASTToken> elements;
 
-        ASTToken left;
-        ASTToken right;
-
-        String OperationType;
-
-        public Operation(ASTToken left,ASTToken right, String OperationType) {
-            this.left = left;
-            this.right = right;
-            this.OperationType = OperationType;
+        public Operation(ArrayList<ASTToken> elements, ArrayList<String> operations)
+        {
+            this.operations = operations;
+            this.elements = elements;
         }
 
-        public void evaluate(){
-            
+
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return
+                    "Operation(elements=" 
+                    + elements 
+                    + ", operations=" 
+                    + operations 
+                    + ")"; 
         }
+        
     }
 
-    public class Unary extends ASTToken {
-
-        public void evaluate(){
-            
-        }
-    }
-
-    public interface IdChainElement
-    {
+    public interface IdChainElement {
         public IdChainElement GetNext();
-        public void SetNext(IdChainElement next);
-    } 
 
-    public class VariableCall extends ASTToken implements IdChainElement{
+        public void SetNext(IdChainElement next);
+    }
+
+    public class VariableCall extends ASTToken implements IdChainElement {
 
         String name;
         ASTToken next;
+
         public VariableCall(String name, ASTToken next) {
             this.name = name;
             this.next = next;
         }
-        public void SetNext(IdChainElement next)
-        {
+
+        public void SetNext(IdChainElement next) {
             this.next = (ASTToken) next;
         }
 
-        public IdChainElement GetNext()
-        {
-            if(next instanceof IdChainElement)
-            {
+        public IdChainElement GetNext() {
+            if (next instanceof IdChainElement) {
                 return (IdChainElement) next;
             }
             return null;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "VariableCall(name=" + name + ", next=" + next + ")";
         }
     }
 
-    public class Literal extends ASTToken{
+    public class Literal extends ASTToken {
         String type;
         String value;
         String vorzeichen;
+
         public Literal(String type, String value, String vorzeichen) {
             this.type = type;
             this.value = value;
             this.vorzeichen = vorzeichen;
         }
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "Literal(type=" + type + ", value=" + value + ", vorzeichen=" + vorzeichen + ")";
         }
     }
 
-    public class FunctionCall extends ASTToken implements IdChainElement{
+    public class FunctionCall extends ASTToken implements IdChainElement {
 
         String name;
         Args args;
@@ -821,22 +923,23 @@ public class AST {
             this.args = args;
             this.next = next;
         }
-        public void SetNext(IdChainElement next)
-        {
+
+        public void SetNext(IdChainElement next) {
             this.next = (ASTToken) next;
         }
-        
-        public IdChainElement GetNext()
-        {
-            if(next instanceof IdChainElement)
-            {
+
+        public IdChainElement GetNext() {
+            if (next instanceof IdChainElement) {
                 return (IdChainElement) next;
             }
             return null;
         }
-        
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "FunctionCall(name=" + name + ", args=" + args + ", next=" + next + ")";
         }
     }
 
@@ -848,65 +951,79 @@ public class AST {
             this.expressions = expressions;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "Args(expressions=" + expressions + ")";
         }
     }
 
     public class Literals extends ASTToken {
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "Literals()";
         }
     }
 
     public class TypeReference extends ASTToken {
 
         Type type;
-        public TypeReference (Type type) {
+
+        public TypeReference(Type type) {
             this.type = type;
         }
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "TypeReference(type=" + type + ")";
         }
     }
 
     public class Type extends ASTToken {
         String type;
+
         public Type(String type) {
             this.type = type;
         }
-        public void evaluate(){
-            
+
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "Type(type=" + type + ")";
         }
     }
 
     public class PrimitiveTypeKey extends ASTToken {
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "PrimitiveTypeKey()";
         }
     }
 
     public class NOT extends ASTToken {
         private ASTToken child;
-        
+
         public NOT(ASTToken child) {
             this.child = child;
         }
 
-        public void evaluate(){
-            
+        public void evaluate() {}
+
+        @Override
+        public String toString() {
+            return "NOT(child=" + child + ")";
         }
     }
-    
-    //temp
-    public class Expression extends ASTToken{
-        public void evaluate(){
-            
-        }
-    }
-
-    
-
 }
+
+
