@@ -123,7 +123,7 @@ public class AST {
         if (e == null) return null;
         String attributeName = e.ID().getText();
         String type = e.type().getText();
-        return new AttributeDeclaration(attributeName, type);
+        return new AttributeDeclaration(type, attributeName);
     }
 
     public MethodDefinition toAST(MiniCppParser.MethodDefinitionContext e) {
@@ -238,11 +238,12 @@ public class AST {
         if (e == null) return null;
         ASTToken expression = null;
 
-        if (e.expression().assignment() != null) {
-            expression = toAST(e.expression().assignment());
-        }
-        if (e.expression().logicalOr() != null) {
-            expression = toAST(e.expression().logicalOr());
+        if (e.expression() != null) {
+            if (e.expression().assignment() != null) {
+                expression = toAST(e.expression().assignment());
+            } else if (e.expression().logicalOr() != null) {
+                expression = toAST(e.expression().logicalOr());
+            }
         }
         return new ReturnStatement(expression);
     }
