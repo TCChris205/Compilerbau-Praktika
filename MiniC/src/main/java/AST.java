@@ -8,11 +8,11 @@ public class AST {
     private static String formatTree(String name, Object value, String indent, boolean isLast) {
         String prefix = isLast ? "└── " : "├── ";
         String continuation = isLast ? "    " : "│   ";
-        
+
         if (value == null) {
             return indent + prefix + name + ": null\n";
         }
-        
+
         String valueStr = value.toString();
         // If value is multiline (contains tree structure), indent it properly
         if (valueStr.contains("\n")) {
@@ -184,8 +184,7 @@ public class AST {
             if (statment.expression() != null) {
                 if (statment.expression().assignment() != null) {
                     lines.add(toAST(statment.expression().assignment()));
-                } 
-                else if (statment.expression().logicalOr() != null) {
+                } else if (statment.expression().logicalOr() != null) {
                     lines.add(toAST(statment.expression().logicalOr()));
                 }
             }
@@ -289,8 +288,6 @@ public class AST {
 
     public Assignment toAST(MiniCppParser.AssignmentContext e) {
         if (e == null) return null;
-        ASTToken idchain = toAST(e.idChain());
-        String id = e.ID().getText();
         ASTToken logicalOr = toAST(e.logicalOr());
 
         VariableCall call = new VariableCall(e.ID().getText(), null);
@@ -317,9 +314,9 @@ public class AST {
 
         for (int i = 0; i < e.OR().size(); i++) {
             operation.add(e.OR(i).getText());
-            element.add(toAST(e.logicalAnd(i+1)));
+            element.add(toAST(e.logicalAnd(i + 1)));
         }
-        return new Operation(element,operation);
+        return new Operation(element, operation);
     }
 
     public ASTToken toAST(MiniCppParser.LogicalAndContext e) {
@@ -330,12 +327,12 @@ public class AST {
 
         ArrayList<String> operation = new ArrayList<>();
         ArrayList<ASTToken> element = new ArrayList<>();
-        
+
         for (int i = 0; i < e.AND().size(); i++) {
             operation.add(e.AND(i).getText());
-            element.add(toAST(e.equal(i+1)));
+            element.add(toAST(e.equal(i + 1)));
         }
-        return new Operation(element,operation);
+        return new Operation(element, operation);
     }
 
     public ASTToken toAST(MiniCppParser.EqualContext e) {
@@ -346,20 +343,18 @@ public class AST {
 
         ArrayList<String> operation = new ArrayList<>();
         ArrayList<ASTToken> element = new ArrayList<>();
-        
+
         for (ParseTree tree : e.children) {
-            if (tree instanceof TerminalNode) {
-                TerminalNode t = (TerminalNode) tree;
+            if (tree instanceof TerminalNode t) {
                 if (t.getText().equals("==")) operation.add("==");
                 if (t.getText().equals("!=")) operation.add("!=");
-
             }
         }
 
         for (int i = 0; i < e.relation().size(); i++) {
             element.add(toAST(e.relation(i)));
         }
-        return new Operation(element,operation);
+        return new Operation(element, operation);
     }
 
     public ASTToken toAST(MiniCppParser.RelationContext e) {
@@ -370,10 +365,9 @@ public class AST {
 
         ArrayList<String> operation = new ArrayList<>();
         ArrayList<ASTToken> element = new ArrayList<>();
-        
+
         for (ParseTree tree : e.children) {
-            if (tree instanceof TerminalNode) {
-                TerminalNode t = (TerminalNode) tree;
+            if (tree instanceof TerminalNode t) {
                 if (t.getText().equals("<=")) operation.add("<=");
                 if (t.getText().equals("<")) operation.add("<");
                 if (t.getText().equals(">")) operation.add(">");
@@ -384,7 +378,7 @@ public class AST {
         for (int i = 0; i < e.arith().size(); i++) {
             element.add(toAST(e.arith(i)));
         }
-        return new Operation(element,operation);
+        return new Operation(element, operation);
     }
 
     public ASTToken toAST(MiniCppParser.ArithContext e) {
@@ -395,11 +389,9 @@ public class AST {
 
         ArrayList<String> operation = new ArrayList<>();
         ArrayList<ASTToken> element = new ArrayList<>();
-        
-        
+
         for (ParseTree tree : e.children) {
-            if (tree instanceof TerminalNode) {
-                TerminalNode t = (TerminalNode) tree;
+            if (tree instanceof TerminalNode t) {
                 if (t.getText().equals("+")) operation.add("+");
                 if (t.getText().equals("-")) operation.add("-");
             }
@@ -408,7 +400,7 @@ public class AST {
         for (int i = 0; i < e.term().size(); i++) {
             element.add(toAST(e.term(i)));
         }
-        return new Operation(element,operation);
+        return new Operation(element, operation);
     }
 
     public ASTToken toAST(MiniCppParser.TermContext e) {
@@ -418,11 +410,9 @@ public class AST {
         }
         ArrayList<String> operation = new ArrayList<>();
         ArrayList<ASTToken> element = new ArrayList<>();
-        
-        
+
         for (ParseTree tree : e.children) {
-            if (tree instanceof TerminalNode) {
-                TerminalNode t = (TerminalNode) tree;
+            if (tree instanceof TerminalNode t) {
                 if (t.getText().equals("*")) operation.add("*");
                 if (t.getText().equals("/")) operation.add("/");
                 if (t.getText().equals("%")) operation.add("%");
@@ -432,17 +422,13 @@ public class AST {
         for (int i = 0; i < e.unary().size(); i++) {
             element.add(toAST(e.unary(i)));
         }
-        return new Operation(element,operation);
+        return new Operation(element, operation);
     }
 
     public ASTToken toAST(MiniCppParser.UnaryContext e) {
         if (e == null) return null;
         boolean invert;
-        if (e.NOT() != null) {
-            invert = true;
-        } else {
-            invert = false;
-        }
+        invert = e.NOT() != null;
 
         if (e.expression() != null) {
             ASTToken expression = null;
@@ -602,6 +588,7 @@ public class AST {
             this.lines = lines;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -639,6 +626,7 @@ public class AST {
             this.members = members;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -662,6 +650,7 @@ public class AST {
             this.name = name;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -679,7 +668,7 @@ public class AST {
         private boolean virtual;
         private String type;
         private String methodName;
-        private ParamList parameter;
+        private ParamList paramList;
         private Block block;
 
         public MethodDefinition(
@@ -687,10 +676,11 @@ public class AST {
             this.virtual = virtual;
             this.type = type;
             this.methodName = methodName;
-            this.parameter = parameter;
+            this.paramList = paramList;
             this.block = block;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -700,7 +690,7 @@ public class AST {
             sb.append(formatTree("virtual", virtual, "", false));
             sb.append(formatTree("type", type, "", false));
             sb.append(formatTree("methodName", methodName, "", false));
-            sb.append(formatTree("parameter", parameter, "", false));
+            sb.append(formatTree("parameter", paramList, "", false));
             sb.append(formatTree("block", block, "", true));
             return sb.toString();
         }
@@ -718,6 +708,7 @@ public class AST {
             this.paramList = paramList;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -741,6 +732,7 @@ public class AST {
             this.name = name;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -761,6 +753,7 @@ public class AST {
             this.lines = lines;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -807,6 +800,7 @@ public class AST {
             this.expression = expression;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -842,6 +836,7 @@ public class AST {
             this.deepcopy = true;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -865,6 +860,7 @@ public class AST {
             this.expression = expression;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -888,6 +884,7 @@ public class AST {
             this.elseBlock = elseBlock;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -911,6 +908,7 @@ public class AST {
             this.block = block;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -933,6 +931,7 @@ public class AST {
             this.operation = operation;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -946,16 +945,16 @@ public class AST {
     }
 
     public class Operation extends ASTToken {
-        
+
         ArrayList<String> operations;
         ArrayList<ASTToken> elements;
 
-        public Operation(ArrayList<ASTToken> elements, ArrayList<String> operations)
-        {
+        public Operation(ArrayList<ASTToken> elements, ArrayList<String> operations) {
             this.operations = operations;
             this.elements = elements;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -984,17 +983,20 @@ public class AST {
             this.next = next;
         }
 
+        @Override
         public void SetNext(IdChainElement next) {
             this.next = (ASTToken) next;
         }
 
+        @Override
         public IdChainElement GetNext() {
-            if (next instanceof IdChainElement) {
-                return (IdChainElement) next;
+            if (next instanceof IdChainElement idChainElement) {
+                return idChainElement;
             }
             return null;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1018,6 +1020,7 @@ public class AST {
             this.vorzeichen = vorzeichen;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1043,17 +1046,20 @@ public class AST {
             this.next = next;
         }
 
+        @Override
         public void SetNext(IdChainElement next) {
             this.next = (ASTToken) next;
         }
 
+        @Override
         public IdChainElement GetNext() {
-            if (next instanceof IdChainElement) {
-                return (IdChainElement) next;
+            if (next instanceof IdChainElement idChainElement) {
+                return idChainElement;
             }
             return null;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1075,6 +1081,7 @@ public class AST {
             this.expressions = expressions;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1100,16 +1107,6 @@ public class AST {
         }
     }
 
-    public class Literals extends ASTToken {
-
-        public void evaluate() {}
-
-        @Override
-        public String toString() {
-            return "Literals";
-        }
-    }
-
     public class TypeReference extends ASTToken {
 
         Type type;
@@ -1118,6 +1115,7 @@ public class AST {
             this.type = type;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1136,6 +1134,7 @@ public class AST {
             this.type = type;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1146,6 +1145,7 @@ public class AST {
 
     public class PrimitiveTypeKey extends ASTToken {
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1161,6 +1161,7 @@ public class AST {
             this.child = child;
         }
 
+        @Override
         public void evaluate() {}
 
         @Override
@@ -1172,5 +1173,3 @@ public class AST {
         }
     }
 }
-
-

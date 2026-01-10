@@ -5,8 +5,6 @@ import java.nio.charset.StandardCharsets;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-
-
 public class Main {
     static void main(String... args) throws IOException, URISyntaxException {
 
@@ -17,7 +15,6 @@ public class Main {
             MiniCppParser parser = new MiniCppParser(tokens);
 
             MiniCppParser.StartContext tree = parser.start();
-
 
             AST ast = new AST();
             AST.ASTToken astToken = ast.toAST(tree);
