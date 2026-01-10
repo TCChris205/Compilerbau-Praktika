@@ -419,7 +419,7 @@ public class AST {
             String value;
             Literal literal = null;
             if (e.literals().NUM() != null) {
-                type = "num";
+                type = "int";
                 value = e.literals().NUM().getText();
                 literal = new Literal(type, value, vorzeichen);
             }
