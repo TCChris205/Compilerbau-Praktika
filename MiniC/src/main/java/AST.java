@@ -11,6 +11,7 @@ public class AST {
     }
 
     public Start toAST(MiniCppParser.StartContext e) {
+        if (e == null) return null;
         ArrayList<ASTToken> lines = new ArrayList<>();
         for (MiniCppParser.LineContext l : e.line()) {
             if (l.statement() != null) {
@@ -49,6 +50,7 @@ public class AST {
     }
 
     public ClassDeclaration toAST(MiniCppParser.ClassDeclarationContext e) {
+        if (e == null) return null;
         String className = e.ID(0).getText();
         String parentClass = null;
         if (e.ID().size() == 2) {
@@ -70,12 +72,14 @@ public class AST {
     }
 
     public AttributeDeclaration toAST(MiniCppParser.AttributeDeclarationContext e) {
+        if (e == null) return null;
         String attributeName = e.ID().getText();
         String type = e.type().getText();
         return new AttributeDeclaration(attributeName, type);
     }
 
     public MethodDefinition toAST(MiniCppParser.MethodDefinitionContext e) {
+        if (e == null) return null;
         boolean virtual = false;
         if (e.VIRTUAL_KEY() != null) {
             virtual = true;
@@ -88,6 +92,7 @@ public class AST {
     }
 
     public Constructor toAST(MiniCppParser.ConstructorDefinitionContext e) {
+        if (e == null) return null;
         String name = e.ID().getText();
         ParamList paramList = toAST(e.paramList());
         Block block = toAST(e.block());
@@ -95,7 +100,7 @@ public class AST {
     }
 
     public ParamList toAST(MiniCppParser.ParamListContext e) {
-
+        if (e == null) return null;
         ArrayList<String> type = new ArrayList<>();
         ArrayList<String> name = new ArrayList<>();
         for (int i = 0; i < e.ID().size(); i++) {
@@ -106,7 +111,7 @@ public class AST {
     }
 
     public Block toAST(MiniCppParser.BlockContext e) {
-
+        if (e == null) return null;
         ArrayList<ASTToken> lines = new ArrayList<>();
 
         for (MiniCppParser.StatementContext statment : e.statement()) {
@@ -136,6 +141,7 @@ public class AST {
     }
 
     public FunctionDeclaration toAST(MiniCppParser.FunctionDeclarationContext e) {
+        if (e == null) return null;
         String type = e.type().getText();
         String functionName = e.ID().getText();
         ParamList paramList = toAST(e.paramList());
@@ -154,6 +160,7 @@ public class AST {
     }
 
     public VariableDeclaration toAST(MiniCppParser.VariableDeclarationContext e) {
+        if (e == null) return null;
         String type = e.type().getText();
         boolean deepcopy = e.DEEPCOPY() != null;
         String varName = e.ID(0).getText();
@@ -182,6 +189,7 @@ public class AST {
     }
 
     public ReturnStatement toAST(MiniCppParser.ReturnStatementContext e) {
+        if (e == null) return null;
         ASTToken expression = null;
 
         if (e.expression().assignment() != null) {
@@ -194,6 +202,7 @@ public class AST {
     }
 
     public IfStatement toAST(MiniCppParser.IfStatementContext e) {
+        if (e == null) return null;
         ASTToken expression = null;
 
         if (e.expression().assignment() != null) {
@@ -212,6 +221,7 @@ public class AST {
     }
 
     public WhileLoop toAST(MiniCppParser.WhileLoopContext e) {
+        if (e == null) return null;
         Block block = toAST(e.block());
         ASTToken expression = null;
 
@@ -225,6 +235,7 @@ public class AST {
     }
 
     public Assignment toAST(MiniCppParser.AssignmentContext e) {
+        if (e == null) return null;
         ASTToken idchain = toAST(e.idChain());
         String id = e.ID().getText();
         ASTToken logicalOr = toAST(e.logicalOr());
@@ -243,6 +254,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.LogicalOrContext e) {
+        if (e == null) return null;
         if (e.logicalAnd().size() == 1) {
             return toAST(e.logicalAnd(0));
         }
@@ -258,6 +270,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.LogicalAndContext e) {
+        if (e == null) return null;
         if (e.equal().size() == 1) {
             return toAST(e.equal(0));
         }
@@ -273,6 +286,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.EqualContext e) {
+        if (e == null) return null;
         if (e.relation().size() == 1) {
             return toAST(e.relation(0));
         }
@@ -296,6 +310,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.RelationContext e) {
+        if (e == null) return null;
         if (e.arith().size() == 1) {
             return toAST(e.arith(0));
         }
@@ -320,6 +335,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.ArithContext e) {
+        if (e == null) return null;
         if (e.term().size() == 1) {
             return toAST(e.term(0));
         }
@@ -343,6 +359,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.TermContext e) {
+        if (e == null) return null;
         if (e.unary().size() == 1) {
             return toAST(e.unary(0));
         }
@@ -366,6 +383,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.UnaryContext e) {
+        if (e == null) return null;
         boolean invert;
         if (e.NOT() != null) {
             invert = true;
@@ -483,6 +501,7 @@ public class AST {
     }
 
     public ASTToken toAST(MiniCppParser.TypeReferenceContext e) {
+        if (e == null) return null;
         if (e.DEEPCOPY() != null) {
             return new TypeReference(toAST(e.type()));
         } else {
@@ -491,6 +510,7 @@ public class AST {
     }
 
     public Type toAST(MiniCppParser.TypeContext e) {
+        if (e == null) return null;
         if (e.ID() != null) {
             return new Type(e.ID().getText());
         } else {
