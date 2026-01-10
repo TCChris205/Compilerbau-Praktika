@@ -4,6 +4,54 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 
 public class AST {
 
+    // Helper method for formatting tree output
+    private static String formatTree(String name, Object value, String indent, boolean isLast) {
+        String prefix = isLast ? "└── " : "├── ";
+        String continuation = isLast ? "    " : "│   ";
+        
+        if (value == null) {
+            return indent + prefix + name + ": null\n";
+        }
+        
+        String valueStr = value.toString();
+        // If value is multiline (contains tree structure), indent it properly
+        if (valueStr.contains("\n")) {
+            String[] lines = valueStr.split("\n");
+            StringBuilder result = new StringBuilder();
+            result.append(indent).append(prefix).append(name).append("\n");
+            for (int i = 0; i < lines.length; i++) {
+                if (i < lines.length - 1 || !lines[i].isEmpty()) {
+                    result.append(indent).append(continuation).append(lines[i]).append("\n");
+                }
+            }
+            return result.toString();
+        } else {
+            return indent + prefix + name + ": " + valueStr + "\n";
+        }
+    }
+
+    private static String formatValue(Object obj) {
+        if (obj == null) return "null";
+        if (obj instanceof ArrayList) {
+            ArrayList<?> list = (ArrayList<?>) obj;
+            if (list.isEmpty()) return "[]";
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < list.size(); i++) {
+                Object item = list.get(i);
+                String itemStr = formatValue(item);
+                if (item instanceof ASTToken && itemStr.contains("\n")) {
+                    if (i == 0) sb.append("\n");
+                    sb.append(itemStr);
+                } else {
+                    if (i > 0) sb.append(", ");
+                    sb.append(itemStr);
+                }
+            }
+            return sb.toString();
+        }
+        return obj.toString();
+    }
+
     // ---------------------------- METHODS ----------------------------
 
     public ASTToken toAST(ParseTree e) {
@@ -558,7 +606,24 @@ public class AST {
 
         @Override
         public String toString() {
-            return "Start(lines=" + lines + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Start\n");
+            if (lines != null && !lines.isEmpty()) {
+                for (int i = 0; i < lines.size(); i++) {
+                    boolean isLast = (i == lines.size() - 1);
+                    String prefix = isLast ? "└── " : "├── ";
+                    String continuation = isLast ? "    " : "│   ";
+                    String itemStr = lines.get(i).toString();
+                    String[] itemLines = itemStr.split("\n");
+                    sb.append(prefix).append(itemLines[0]).append("\n");
+                    for (int j = 1; j < itemLines.length; j++) {
+                        if (!itemLines[j].isEmpty()) {
+                            sb.append(continuation).append(itemLines[j]).append("\n");
+                        }
+                    }
+                }
+            }
+            return sb.toString();
         }
     }
 
@@ -578,13 +643,12 @@ public class AST {
 
         @Override
         public String toString() {
-            return "ClassDeclaration(className="
-                    + className
-                    + ", parentClass="
-                    + parentClass
-                    + ", members="
-                    + members
-                    + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("ClassDeclaration\n");
+            sb.append(formatTree("className", className, "", false));
+            sb.append(formatTree("parentClass", parentClass, "", false));
+            sb.append(formatTree("members", formatValue(members), "", true));
+            return sb.toString();
         }
     }
 
@@ -602,7 +666,11 @@ public class AST {
 
         @Override
         public String toString() {
-            return "AttributeDeclaration(type=" + type + ", name=" + name + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("AttributeDeclaration\n");
+            sb.append(formatTree("type", type, "", false));
+            sb.append(formatTree("name", name, "", true));
+            return sb.toString();
         }
     }
 
@@ -627,17 +695,14 @@ public class AST {
 
         @Override
         public String toString() {
-            return "MethodDefinition(virtual="
-                    + virtual
-                    + ", type="
-                    + type
-                    + ", methodName="
-                    + methodName
-                    + ", parameter="
-                    + parameter
-                    + ", block="
-                    + block
-                    + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("MethodDefinition\n");
+            sb.append(formatTree("virtual", virtual, "", false));
+            sb.append(formatTree("type", type, "", false));
+            sb.append(formatTree("methodName", methodName, "", false));
+            sb.append(formatTree("parameter", parameter, "", false));
+            sb.append(formatTree("block", block, "", true));
+            return sb.toString();
         }
     }
 
@@ -657,13 +722,12 @@ public class AST {
 
         @Override
         public String toString() {
-            return "Constructor(className="
-                    + className
-                    + ", block="
-                    + block
-                    + ", paramList="
-                    + paramList
-                    + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Constructor\n");
+            sb.append(formatTree("className", className, "", false));
+            sb.append(formatTree("block", block, "", false));
+            sb.append(formatTree("paramList", paramList, "", true));
+            return sb.toString();
         }
     }
 
@@ -681,7 +745,11 @@ public class AST {
 
         @Override
         public String toString() {
-            return "ParamList(type=" + type + ", name=" + name + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("ParamList\n");
+            sb.append(formatTree("type", type, "", false));
+            sb.append(formatTree("name", name, "", true));
+            return sb.toString();
         }
     }
 
@@ -697,7 +765,24 @@ public class AST {
 
         @Override
         public String toString() {
-            return "Block(lines=" + lines + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Block\n");
+            if (lines != null && !lines.isEmpty()) {
+                for (int i = 0; i < lines.size(); i++) {
+                    boolean isLast = (i == lines.size() - 1);
+                    String prefix = isLast ? "└── " : "├── ";
+                    String continuation = isLast ? "    " : "│   ";
+                    String itemStr = lines.get(i).toString();
+                    String[] itemLines = itemStr.split("\n");
+                    sb.append(prefix).append(itemLines[0]).append("\n");
+                    for (int j = 1; j < itemLines.length; j++) {
+                        if (!itemLines[j].isEmpty()) {
+                            sb.append(continuation).append(itemLines[j]).append("\n");
+                        }
+                    }
+                }
+            }
+            return sb.toString();
         }
     }
 
@@ -726,17 +811,14 @@ public class AST {
 
         @Override
         public String toString() {
-            return "FunctionDeclaration(type="
-                    + type
-                    + ", functionName="
-                    + functionName
-                    + ", paramList="
-                    + paramList
-                    + ", expression="
-                    + expression
-                    + ", block="
-                    + block
-                    + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("FunctionDeclaration\n");
+            sb.append(formatTree("type", type, "", false));
+            sb.append(formatTree("functionName", functionName, "", false));
+            sb.append(formatTree("paramList", paramList, "", false));
+            sb.append(formatTree("expression", expression, "", false));
+            sb.append(formatTree("block", block, "", true));
+            return sb.toString();
         }
     }
 
@@ -764,17 +846,14 @@ public class AST {
 
         @Override
         public String toString() {
-            return "VariableDeclaration(deepcopy="
-                    + deepcopy
-                    + ", varName="
-                    + varName
-                    + ", type="
-                    + type
-                    + ", expression="
-                    + expression
-                    + ", varCall="
-                    + varCall
-                    + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("VariableDeclaration\n");
+            sb.append(formatTree("deepcopy", deepcopy, "", false));
+            sb.append(formatTree("varName", varName, "", false));
+            sb.append(formatTree("type", type, "", false));
+            sb.append(formatTree("expression", expression, "", false));
+            sb.append(formatTree("varCall", varCall, "", true));
+            return sb.toString();
         }
     }
 
@@ -790,7 +869,10 @@ public class AST {
 
         @Override
         public String toString() {
-            return "ReturnStatement(expression=" + expression + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("ReturnStatement\n");
+            sb.append(formatTree("expression", expression, "", true));
+            return sb.toString();
         }
     }
 
@@ -810,13 +892,12 @@ public class AST {
 
         @Override
         public String toString() {
-            return "IfStatement(expression="
-                    + expression
-                    + ", block="
-                    + block
-                    + ", elseBlock="
-                    + elseBlock
-                    + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("IfStatement\n");
+            sb.append(formatTree("expression", expression, "", false));
+            sb.append(formatTree("block", block, "", false));
+            sb.append(formatTree("elseBlock", elseBlock, "", true));
+            return sb.toString();
         }
     }
 
@@ -834,7 +915,11 @@ public class AST {
 
         @Override
         public String toString() {
-            return "WhileLoop(block=" + block + ", expression=" + expression + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("WhileLoop\n");
+            sb.append(formatTree("block", block, "", false));
+            sb.append(formatTree("expression", expression, "", true));
+            return sb.toString();
         }
     }
 
@@ -852,7 +937,11 @@ public class AST {
 
         @Override
         public String toString() {
-            return "Assignment(chain=" + chain + ", operation=" + operation + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Assignment\n");
+            sb.append(formatTree("chain", chain, "", false));
+            sb.append(formatTree("operation", operation, "", true));
+            return sb.toString();
         }
     }
 
@@ -867,20 +956,16 @@ public class AST {
             this.elements = elements;
         }
 
-
-
         public void evaluate() {}
 
         @Override
         public String toString() {
-            return
-                    "Operation(elements=" 
-                    + elements 
-                    + ", operations=" 
-                    + operations 
-                    + ")"; 
+            StringBuilder sb = new StringBuilder();
+            sb.append("Operation\n");
+            sb.append(formatTree("elements", formatValue(elements), "", false));
+            sb.append(formatTree("operations", operations, "", true));
+            return sb.toString();
         }
-        
     }
 
     public interface IdChainElement {
@@ -914,7 +999,11 @@ public class AST {
 
         @Override
         public String toString() {
-            return "VariableCall(name=" + name + ", next=" + next + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("VariableCall\n");
+            sb.append(formatTree("name", name, "", false));
+            sb.append(formatTree("next", next, "", true));
+            return sb.toString();
         }
     }
 
@@ -933,7 +1022,12 @@ public class AST {
 
         @Override
         public String toString() {
-            return "Literal(type=" + type + ", value=" + value + ", vorzeichen=" + vorzeichen + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Literal\n");
+            sb.append(formatTree("type", type, "", false));
+            sb.append(formatTree("value", value, "", false));
+            sb.append(formatTree("vorzeichen", vorzeichen, "", true));
+            return sb.toString();
         }
     }
 
@@ -964,7 +1058,12 @@ public class AST {
 
         @Override
         public String toString() {
-            return "FunctionCall(name=" + name + ", args=" + args + ", next=" + next + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("FunctionCall\n");
+            sb.append(formatTree("name", name, "", false));
+            sb.append(formatTree("args", args, "", false));
+            sb.append(formatTree("next", next, "", true));
+            return sb.toString();
         }
     }
 
@@ -980,7 +1079,24 @@ public class AST {
 
         @Override
         public String toString() {
-            return "Args(expressions=" + expressions + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("Args\n");
+            if (expressions != null && !expressions.isEmpty()) {
+                for (int i = 0; i < expressions.size(); i++) {
+                    boolean isLast = (i == expressions.size() - 1);
+                    String prefix = isLast ? "└── " : "├── ";
+                    String continuation = isLast ? "    " : "│   ";
+                    String itemStr = expressions.get(i).toString();
+                    String[] itemLines = itemStr.split("\n");
+                    sb.append(prefix).append(itemLines[0]).append("\n");
+                    for (int j = 1; j < itemLines.length; j++) {
+                        if (!itemLines[j].isEmpty()) {
+                            sb.append(continuation).append(itemLines[j]).append("\n");
+                        }
+                    }
+                }
+            }
+            return sb.toString();
         }
     }
 
@@ -990,7 +1106,7 @@ public class AST {
 
         @Override
         public String toString() {
-            return "Literals()";
+            return "Literals";
         }
     }
 
@@ -1006,7 +1122,10 @@ public class AST {
 
         @Override
         public String toString() {
-            return "TypeReference(type=" + type + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("TypeReference\n");
+            sb.append(formatTree("type", type, "", true));
+            return sb.toString();
         }
     }
 
@@ -1031,7 +1150,7 @@ public class AST {
 
         @Override
         public String toString() {
-            return "PrimitiveTypeKey()";
+            return "PrimitiveTypeKey";
         }
     }
 
@@ -1046,7 +1165,10 @@ public class AST {
 
         @Override
         public String toString() {
-            return "NOT(child=" + child + ")";
+            StringBuilder sb = new StringBuilder();
+            sb.append("NOT\n");
+            sb.append(formatTree("child", child, "", true));
+            return sb.toString();
         }
     }
 }
