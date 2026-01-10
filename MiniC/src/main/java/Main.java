@@ -10,6 +10,7 @@ public class Main {
 
         String path;
         path = "pos/myTest.cpp";
+
         // path = "pos/GOLD01_basics.cpp";
         // path = "pos/GOLD02_ref_params.cpp";
         // path = "pos/GOLD03_classes_dispatch.cpp";
@@ -17,6 +18,7 @@ public class Main {
         // path = "pos/GOLD05_virtual_override.cpp";
         // path = "pos/GOLD06_constructors_basic.cpp";
         // path = "pos/GOLD07_constructors_inheritance.cpp";
+
         // path = "pos/P01_vars.cpp";
         // path = "pos/P02_expr.cpp";
         // path = "pos/P03_ifthenelse.cpp";
@@ -26,6 +28,7 @@ public class Main {
         // path = "pos/P07_scopes_and_shadowing.cpp";
         // path = "pos/P08_func.cpp";
         // path = "pos/P09_short_circuit.cpp";
+
         // path = "pos/P10_class_defaults.cpp";
         // path = "pos/P11_class_custom.cpp";
         // path = "pos/P12_class_mixed.cpp";
@@ -36,6 +39,18 @@ public class Main {
         // path = "pos/P18_polymorphie_static.cpp";
         // path = "pos/P19_polymorphie_static_ref.cpp";
         // path = "pos/P20_polymorphie_dynamic.cpp";
+
+        // path = "neg/N01_redeclaration.cpp";
+        // path = "neg/N02_redeclaration.cpp";
+        // path = "neg/N03_ref_noinit.cpp";
+        // path = "neg/N04_ref_init_rvalue.cpp";
+        // path = "neg/N05_assign_to_rvalue.cpp";
+        // path = "neg/N06_wrong_arity.cpp";
+        // path = "neg/N07_void_return_with_value.cpp";
+        // path = "neg/N08_unknown_member.cpp";
+        // path = "neg/N09_method_not_in_static_type.cpp";
+        // path = "neg/N10_polymorphie.cpp";
+        // path = "neg/N11_ambiguous_overload.cpp";
         try (InputStream in = Main.class.getResourceAsStream(path)) {
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             MiniCppLexer lexer = new MiniCppLexer(CharStreams.fromString(text));
@@ -45,8 +60,9 @@ public class Main {
             MiniCppParser.StartContext tree = parser.start();
 
             AST ast = new AST();
-            AST.ASTToken astToken = ast.toAST(tree);
+            AST.Start astToken = ast.toAST(tree);
             System.out.println(astToken.toString());
+
         }
     }
 }
