@@ -8,7 +8,35 @@ import org.antlr.v4.runtime.CommonTokenStream;
 public class Main {
     static void main(String... args) throws IOException, URISyntaxException {
 
-        try (InputStream in = Main.class.getResourceAsStream("pos/GOLD01_basics.cpp")) {
+        String path;
+        path = "pos/myTest.cpp";
+        // path = "pos/GOLD01_basics.cpp";
+        // path = "pos/GOLD02_ref_params.cpp";
+        // path = "pos/GOLD03_classes_dispatch.cpp";
+        // path = "pos/GOLD04_slicing.cpp";
+        // path = "pos/GOLD05_virtual_override.cpp";
+        // path = "pos/GOLD06_constructors_basic.cpp";
+        // path = "pos/GOLD07_constructors_inheritance.cpp";
+        // path = "pos/P01_vars.cpp";
+        // path = "pos/P02_expr.cpp";
+        // path = "pos/P03_ifthenelse.cpp";
+        // path = "pos/P04_while.cpp";
+        // path = "pos/P05_operators.cpp";
+        // path = "pos/P06_refs.cpp";
+        // path = "pos/P07_scopes_and_shadowing.cpp";
+        // path = "pos/P08_func.cpp";
+        // path = "pos/P09_short_circuit.cpp";
+        // path = "pos/P10_class_defaults.cpp";
+        // path = "pos/P11_class_custom.cpp";
+        // path = "pos/P12_class_mixed.cpp";
+        // path = "pos/P13_ambiguous_overload.cpp";
+        // path = "pos/P14_methods_refs_chaining.cpp";
+        // path = "pos/P15_return_object_by_value.cpp";
+        // path = "pos/P17_inheritance.cpp";
+        // path = "pos/P18_polymorphie_static.cpp";
+        // path = "pos/P19_polymorphie_static_ref.cpp";
+        // path = "pos/P20_polymorphie_dynamic.cpp";
+        try (InputStream in = Main.class.getResourceAsStream(path)) {
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             MiniCppLexer lexer = new MiniCppLexer(CharStreams.fromString(text));
             CommonTokenStream tokens = new CommonTokenStream(lexer);
