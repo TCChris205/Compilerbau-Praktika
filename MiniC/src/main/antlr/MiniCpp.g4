@@ -56,7 +56,7 @@ block
     ;
 
 functionDeclaration
-    :   type ID LPAREN paramList? RPAREN (ASSIGN expression)? block
+    :   type ID LPAREN paramList? RPAREN block
     ;
 
 variableDeclaration

@@ -197,18 +197,10 @@ public class AST {
         String type = e.type().getText();
         String functionName = e.ID().getText();
         ParamList paramList = toAST(e.paramList());
-        ASTToken expression = null;
 
-        if (e.expression() != null) {
-            if (e.expression().assignment() != null) {
-                expression = toAST(e.expression().assignment());
-            } else if (e.expression().logicalOr() != null) {
-                expression = toAST(e.expression().logicalOr());
-            }
-        }
         Block block = toAST(e.block());
 
-        return new FunctionDeclaration(type, functionName, paramList, expression, block);
+        return new FunctionDeclaration(type, functionName, paramList, block);
     }
 
     public VariableDeclaration toAST(MiniCppParser.VariableDeclarationContext e) {
@@ -231,11 +223,13 @@ public class AST {
         }
         ASTToken expression = null;
 
-        if (e.expression().assignment() != null) {
-            expression = toAST(e.expression().assignment());
-        }
-        if (e.expression().logicalOr() != null) {
-            expression = toAST(e.expression().logicalOr());
+        if (e.expression() != null) {
+            if (e.expression().assignment() != null) {
+                expression = toAST(e.expression().assignment());
+            }
+            if (e.expression().logicalOr() != null) {
+                expression = toAST(e.expression().logicalOr());
+            }
         }
         return new VariableDeclaration(type, varName, expression);
     }
@@ -784,20 +778,14 @@ public class AST {
         private String type;
         private String functionName;
         private ParamList paramList;
-        private ASTToken expression;
         private Block block;
 
         public FunctionDeclaration(
-                String type,
-                String functionName,
-                ParamList paramList,
-                ASTToken expression,
-                Block block) {
+                String type, String functionName, ParamList paramList, Block block) {
             this.type = type;
             this.functionName = functionName;
             this.paramList = paramList;
             this.block = block;
-            this.expression = expression;
         }
 
         @Override
@@ -810,7 +798,6 @@ public class AST {
             sb.append(formatTree("type", type, "", false));
             sb.append(formatTree("functionName", functionName, "", false));
             sb.append(formatTree("paramList", paramList, "", false));
-            sb.append(formatTree("expression", expression, "", false));
             sb.append(formatTree("block", block, "", true));
             return sb.toString();
         }
