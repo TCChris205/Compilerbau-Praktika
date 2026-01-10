@@ -134,7 +134,12 @@ public class AST {
                 lines.add(toAST(statment.whileLoop()));
             }
             if (statment.expression() != null) {
-                lines.add(toAST(statment.expression()));
+                if (statment.expression().assignment() != null) {
+                    lines.add(toAST(statment.expression().assignment()));
+                } 
+                else if (statment.expression().logicalOr() != null) {
+                    lines.add(toAST(statment.expression().logicalOr()));
+                }
             }
         }
         return new Block(lines);
