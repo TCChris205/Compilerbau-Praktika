@@ -577,7 +577,7 @@ public class AST {
     }
 
     public class Start extends ASTToken {
-        private ArrayList<ASTToken> lines;
+        public ArrayList<ASTToken> lines;
 
         public Start(ArrayList<ASTToken> lines) {
             this.lines = lines;
@@ -611,9 +611,9 @@ public class AST {
 
     public class ClassDeclaration extends ASTToken {
 
-        private String className;
-        private String parentClass;
-        private ArrayList<ASTToken> members;
+        public String className;
+        public String parentClass;
+        public ArrayList<ASTToken> members;
 
         public ClassDeclaration(String className, String parentClass, ArrayList<ASTToken> members) {
             this.className = className;
@@ -637,8 +637,8 @@ public class AST {
 
     public class AttributeDeclaration extends ASTToken {
 
-        private String type;
-        private String name;
+        public String type;
+        public String name;
 
         public AttributeDeclaration(String type, String name) {
             this.type = type;
@@ -660,11 +660,11 @@ public class AST {
 
     public class MethodDefinition extends ASTToken {
 
-        private boolean virtual;
-        private String type;
-        private String methodName;
-        private ParamList paramList;
-        private Block block;
+        public boolean virtual;
+        public String type;
+        public String methodName;
+        public ParamList paramList;
+        public Block block;
 
         public MethodDefinition(
                 boolean virtual, String type, String methodName, ParamList paramList, Block block) {
@@ -693,9 +693,9 @@ public class AST {
 
     public class Constructor extends ASTToken {
 
-        private String className;
-        private Block block;
-        private ParamList paramList;
+        public String className;
+        public Block block;
+        public ParamList paramList;
 
         public Constructor(String className, Block block, ParamList paramList) {
             this.className = className;
@@ -719,8 +719,8 @@ public class AST {
 
     public class ParamList extends ASTToken {
 
-        private ArrayList<String> type = new ArrayList<>();
-        private ArrayList<String> name = new ArrayList<>();
+        public ArrayList<String> type = new ArrayList<>();
+        public ArrayList<String> name = new ArrayList<>();
 
         public ParamList(ArrayList<String> type, ArrayList<String> name) {
             this.type = type;
@@ -776,10 +776,10 @@ public class AST {
 
     public class FunctionDeclaration extends ASTToken {
 
-        private String type;
-        private String functionName;
-        private ParamList paramList;
-        private Block block;
+        public String type;
+        public String functionName;
+        public ParamList paramList;
+        public Block block;
 
         public FunctionDeclaration(
                 String type, String functionName, ParamList paramList, Block block) {
@@ -805,11 +805,11 @@ public class AST {
     }
 
     public class VariableDeclaration extends ASTToken {
-        private boolean deepcopy = false;
-        private String varName;
-        private String type;
-        private ASTToken expression = null;
-        private IdChainElement varCall;
+        public boolean deepcopy = false;
+        public String varName;
+        public String type;
+        public ASTToken expression = null;
+        public IdChainElement varCall;
 
         public VariableDeclaration(String type, String varName, ASTToken expression) {
             this.type = type;
@@ -842,7 +842,7 @@ public class AST {
 
     public class ReturnStatement extends ASTToken {
 
-        private ASTToken expression;
+        public ASTToken expression;
 
         public ReturnStatement(ASTToken expression) {
             this.expression = expression;
@@ -862,9 +862,9 @@ public class AST {
 
     public class IfStatement extends ASTToken {
 
-        private ASTToken expression;
-        private Block block;
-        private Block elseBlock;
+        public ASTToken expression;
+        public Block block;
+        public Block elseBlock;
 
         public IfStatement(ASTToken expression, Block block, Block elseBlock) {
             this.expression = expression;
@@ -888,8 +888,8 @@ public class AST {
 
     public class WhileLoop extends ASTToken {
 
-        private Block block;
-        private ASTToken expression;
+        public Block block;
+        public ASTToken expression;
 
         public WhileLoop(Block block, ASTToken expression) {
             this.expression = expression;
@@ -911,8 +911,8 @@ public class AST {
 
     public class Assignment extends ASTToken {
 
-        private IdChainElement chain;
-        private ASTToken operation;
+        public IdChainElement chain;
+        public ASTToken operation;
 
         public Assignment(IdChainElement chain, ASTToken operation) {
             this.chain = chain;
@@ -1143,7 +1143,7 @@ public class AST {
     }
 
     public class NOT extends ASTToken {
-        private ASTToken child;
+        public ASTToken child;
 
         public NOT(ASTToken child) {
             this.child = child;
