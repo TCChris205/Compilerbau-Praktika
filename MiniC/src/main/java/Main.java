@@ -47,7 +47,7 @@ public class Main {
         // path = "neg/N02_redeclaration.cpp";
         // path = "neg/N03_ref_noinit.cpp";
         // path = "neg/N04_ref_init_rvalue.cpp";
-        // path = "neg/N05_assign_to_rvalue.cpp";
+        path = "neg/N05_assign_to_rvalue.cpp";
         // path = "neg/N06_wrong_arity.cpp";
         // path = "neg/N07_void_return_with_value.cpp";
         // path = "neg/N08_unknown_member.cpp";
@@ -60,29 +60,29 @@ public class Main {
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             MiniCppParser parser = new MiniCppParser(tokens);
 
-            MiniCppParser.StartContext tree = parser.start();
-
+            
             parser.removeErrorListeners();
             parser.addErrorListener(
-                    new BaseErrorListener() {
-                        @Override
-                        public void syntaxError(
-                                Recognizer<?, ?> recognizer,
-                                Object offendingSymbol,
-                                int line,
-                                int charPositionInLine,
-                                String msg,
-                                RecognitionException e) {
+                new BaseErrorListener() {
+                    @Override
+                    public void syntaxError(
+                        Recognizer<?, ?> recognizer,
+                        Object offendingSymbol,
+                        int line,
+                        int charPositionInLine,
+                        String msg,
+                        RecognitionException e) {
                             throw new RuntimeException(
-                                    "Parse Error at line "
-                                            + line
-                                            + ":"
-                                            + charPositionInLine
-                                            + " - "
-                                            + msg);
-                        }
-                    });
-
+                                "Parse Error at line "
+                                + line
+                                + ":"
+                                + charPositionInLine
+                                + " - "
+                                + msg);
+                            }
+                        });
+                        
+            MiniCppParser.StartContext tree = parser.start();
             AST ast = new AST();
             AST.Start astToken = ast.toAST(tree);
             System.out.println(astToken.toString());
