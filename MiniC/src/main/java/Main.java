@@ -2,9 +2,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
+import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.BaseErrorListener;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Recognizer;
 
@@ -63,12 +63,25 @@ public class Main {
             MiniCppParser.StartContext tree = parser.start();
 
             parser.removeErrorListeners();
-            parser.addErrorListener(new BaseErrorListener() {
-                @Override
-                public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
-                    throw new RuntimeException("Parse Error at line " + line + ":" + charPositionInLine + " - " + msg);
-                }
-            });
+            parser.addErrorListener(
+                    new BaseErrorListener() {
+                        @Override
+                        public void syntaxError(
+                                Recognizer<?, ?> recognizer,
+                                Object offendingSymbol,
+                                int line,
+                                int charPositionInLine,
+                                String msg,
+                                RecognitionException e) {
+                            throw new RuntimeException(
+                                    "Parse Error at line "
+                                            + line
+                                            + ":"
+                                            + charPositionInLine
+                                            + " - "
+                                            + msg);
+                        }
+                    });
 
             AST ast = new AST();
             AST.Start astToken = ast.toAST(tree);
@@ -79,8 +92,7 @@ public class Main {
 
         } catch (SemanticException e) {
             System.err.println("Semantic Error: " + e.getMessage());
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             System.err.println("RuntimeException: " + e.getMessage());
         }
     }

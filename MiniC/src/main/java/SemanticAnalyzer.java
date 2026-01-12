@@ -52,7 +52,7 @@ public class SemanticAnalyzer {
 
     private Scope.VariableInfo buildVariableInfo(AST.AttributeDeclaration attrDecl) {
         return new Scope.VariableInfo(
-                attrDecl.name, attrDecl.type, null, false // 
+                attrDecl.name, attrDecl.type, null, false //
                 );
     }
 
@@ -600,7 +600,7 @@ public class SemanticAnalyzer {
                 printCurrentScope();
                 throw new SemanticException(returnType + " class not found");
             }
-            
+
             return analyzeVariableCallOnClass(n, classInfo);
 
         } else if (functionCall.next instanceof AST.FunctionCall n) {
@@ -615,22 +615,28 @@ public class SemanticAnalyzer {
             if (classInfo == null) {
                 throw new SemanticException(returnType + " class not found");
             }
-            
+
             return analyzeFunctionCallOnClass(n, classInfo);
         }
         return "";
     }
-    
-    private String analyzeVariableCallOnClass(AST.VariableCall variableCall, Scope.ClassInfo classInfo) {
+
+    private String analyzeVariableCallOnClass(
+            AST.VariableCall variableCall, Scope.ClassInfo classInfo) {
         if (variableCall.next == null) {
             Scope.VariableInfo vInfo = classInfo.attributes.get(variableCall.name);
-            
+
             if (vInfo == null && classInfo.parent != null) {
                 vInfo = findVariableInAncestors(classInfo.parent, variableCall.name);
             }
 
             if (vInfo == null) {
-                throw new SemanticException("Variable '" + variableCall.name + "' not found in class '" + classInfo.name + "'");
+                throw new SemanticException(
+                        "Variable '"
+                                + variableCall.name
+                                + "' not found in class '"
+                                + classInfo.name
+                                + "'");
             }
             return vInfo.type;
         }
@@ -642,7 +648,12 @@ public class SemanticAnalyzer {
             }
 
             if (vInfo == null) {
-                throw new SemanticException("Variable '" + variableCall.name + "' not found in class '" + classInfo.name + "'");
+                throw new SemanticException(
+                        "Variable '"
+                                + variableCall.name
+                                + "' not found in class '"
+                                + classInfo.name
+                                + "'");
             }
 
             if (!isPrimitive(vInfo.type)) {
@@ -661,7 +672,12 @@ public class SemanticAnalyzer {
             }
 
             if (vInfo == null) {
-                throw new SemanticException("Variable '" + variableCall.name + "' not found in class '" + classInfo.name + "'");
+                throw new SemanticException(
+                        "Variable '"
+                                + variableCall.name
+                                + "' not found in class '"
+                                + classInfo.name
+                                + "'");
             }
 
             if (!isPrimitive(vInfo.type)) {
@@ -677,9 +693,9 @@ public class SemanticAnalyzer {
 
         throw new SemanticException("unexpected AST Type found");
     }
-    
-    
-    private String analyzeFunctionCallOnClass(AST.FunctionCall functionCall, Scope.ClassInfo classInfo) {
+
+    private String analyzeFunctionCallOnClass(
+            AST.FunctionCall functionCall, Scope.ClassInfo classInfo) {
         ArrayList<String> args = analyzeArgs(functionCall.args);
 
         String sig = buildMethodInfo(functionCall.name, args).getSignature();
@@ -688,9 +704,10 @@ public class SemanticAnalyzer {
         if (methodInfo == null && classInfo.parent != null) {
             methodInfo = findMethodInAncestors(classInfo.parent, sig);
         }
-        
+
         if (methodInfo == null) {
-            throw new SemanticException("Can not find function " + sig + " in class " + classInfo.name);
+            throw new SemanticException(
+                    "Can not find function " + sig + " in class " + classInfo.name);
         }
 
         String returnType = methodInfo.returnType;
@@ -711,7 +728,7 @@ public class SemanticAnalyzer {
             if (nextClassInfo == null) {
                 throw new SemanticException(returnType + " class not found");
             }
-            
+
             return analyzeVariableCallOnClass(n, nextClassInfo);
 
         } else if (functionCall.next instanceof AST.FunctionCall n) {
@@ -726,7 +743,7 @@ public class SemanticAnalyzer {
             if (nextClassInfo == null) {
                 throw new SemanticException(returnType + " class not found");
             }
-            
+
             return analyzeFunctionCallOnClass(n, nextClassInfo);
         }
         return "";
