@@ -13,6 +13,38 @@ public class SemanticAnalyzer {
         globalScope = new Scope(null);
         currentScope = globalScope;
         currentClass = null;
+        
+        initializeBuiltinFunctions();
+    }
+
+    private void initializeBuiltinFunctions() {
+        ArrayList<String> intParamTypes = new ArrayList<>();
+        intParamTypes.add("int");
+        globalScope.methods.put(
+            "print_int/int,",
+            new Scope.MethodInfo("print_int", "void", intParamTypes, Arrays.asList("value"), false, null)
+        );
+        
+        ArrayList<String> boolParamTypes = new ArrayList<>();
+        boolParamTypes.add("bool");
+        globalScope.methods.put(
+            "print_bool/bool,",
+            new Scope.MethodInfo("print_bool", "void", boolParamTypes, Arrays.asList("value"), false, null)
+        );
+        
+        ArrayList<String> charParamTypes = new ArrayList<>();
+        charParamTypes.add("char");
+        globalScope.methods.put(
+            "print_char/char,",
+            new Scope.MethodInfo("print_char", "void", charParamTypes, Arrays.asList("value"), false, null)
+        );
+        
+        ArrayList<String> stringParamTypes = new ArrayList<>();
+        stringParamTypes.add("string");
+        globalScope.methods.put(
+            "print_string/string,",
+            new Scope.MethodInfo("print_string", "void", stringParamTypes, Arrays.asList("value"), false, null)
+        );
     }
 
     private Scope.VariableInfo buildVariableInfo(AST.AttributeDeclaration attrDecl) {
