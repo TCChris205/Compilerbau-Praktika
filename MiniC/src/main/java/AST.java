@@ -293,6 +293,7 @@ public class AST {
         ArrayList<String> operation = new ArrayList<>();
         ArrayList<ASTToken> element = new ArrayList<>();
 
+        element.add(toAST(e.logicalAnd(0)));
         for (int i = 0; i < e.OR().size(); i++) {
             operation.add(e.OR(i).getText());
             element.add(toAST(e.logicalAnd(i + 1)));
@@ -309,6 +310,7 @@ public class AST {
         ArrayList<String> operation = new ArrayList<>();
         ArrayList<ASTToken> element = new ArrayList<>();
 
+        element.add(toAST(e.equal(0)));
         for (int i = 0; i < e.AND().size(); i++) {
             operation.add(e.AND(i).getText());
             element.add(toAST(e.equal(i + 1)));

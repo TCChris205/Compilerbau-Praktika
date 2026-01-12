@@ -137,8 +137,10 @@ public class SemanticAnalyzer {
 
         currentScope.declareClass(className, classInfo);
 
+        int counter = 0;
         for (AST.ASTToken member : classDecl.members) {
             if (member instanceof AST.Constructor constructor) {
+                counter++;
                 Scope.MethodInfo constructorInfo = buildConstructorInfo(constructor);
                 if (currentScope.methods.containsKey(constructorInfo.getSignature())) {
                     printCurrentScope();
@@ -151,6 +153,29 @@ public class SemanticAnalyzer {
                 }
                 currentScope.methods.put(constructorInfo.getSignature(), constructorInfo);
             }
+        }
+
+        if (counter == 0) {
+            // add default Ctor
+            Scope.MethodInfo constructorInfo =
+                    new Scope.MethodInfo(
+                            className,
+                            className,
+                            new ArrayList<String>(),
+                            new ArrayList<String>(),
+                            false,
+                            className);
+            currentScope.methods.put(constructorInfo.getSignature(), constructorInfo);
+        }
+
+        // add coppy Ctor if not exists
+        ArrayList<String> ParamTypes = new ArrayList<>();
+        ParamTypes.add(className);
+        Scope.MethodInfo constructorInfo =
+                new Scope.MethodInfo(
+                        className, className, ParamTypes, Arrays.asList("value"), false, className);
+        if (currentScope.getMethod(constructorInfo.getSignature()) == null) {
+            globalScope.methods.put(constructorInfo.getSignature(), constructorInfo);
         }
     }
 
@@ -349,8 +374,12 @@ public class SemanticAnalyzer {
 
     private void analyzeIf(AST.IfStatement ifStatement, String returnType) {
         String type = analyzeExpression(ifStatement.expression);
-        if (!type.equals("bool")) {
-            throw new SemanticException("Expression type '" + type + "' is not a boolean");
+        if (!(type.equals("bool")
+                || type.equals("int")
+                || type.equals("char")
+                || type.equals("string"))) {
+            throw new SemanticException(
+                    "Expression type '" + type + "' cant be converted to boolean");
         }
 
         analyzeBlock(ifStatement.block, returnType);
@@ -361,8 +390,12 @@ public class SemanticAnalyzer {
 
     private void analyzeWhile(AST.WhileLoop whileLoop, String returnType) {
         String type = analyzeExpression(whileLoop.expression);
-        if (!type.equals("bool")) {
-            throw new SemanticException("Expression type '" + type + "' is not a boolean");
+        if (!(type.equals("bool")
+                || type.equals("int")
+                || type.equals("char")
+                || type.equals("string"))) {
+            throw new SemanticException(
+                    "Expression type '" + type + "' cant be converted to boolean");
         }
 
         analyzeBlock(whileLoop.block, returnType);
@@ -450,9 +483,11 @@ public class SemanticAnalyzer {
                     || operation.operations.get(i).equals(">")) {
                 if (op1Type.equals("int") && op2Type.equals("int")) {
                     op1Type = "bool";
+                } else if (op1Type.equals("char") && op2Type.equals("char")) {
+                    op1Type = "bool";
                 } else {
                     throw new SemanticException(
-                            "Non integer values cannot be greater or less than. "
+                            "Non integer or char values cannot be greater or less than. "
                                     + op1Type
                                     + " and "
                                     + op2Type
@@ -471,6 +506,16 @@ public class SemanticAnalyzer {
                                     + operation.operations.get(i)
                                     + " operation on non int values.");
                 }
+            } else if (operation.operations.get(i).equals("||")
+                    || operation.operations.get(i).equals("&&")) {
+                if (op1Type.equals("bool") && op2Type.equals("bool")) {
+                    op1Type = "bool";
+                } else {
+                    throw new SemanticException(
+                            "Cannot do "
+                                    + operation.operations.get(i)
+                                    + " operation on non int values.");
+                }
             } else {
                 throw new SemanticException(
                         "Unexpected Operation: " + operation.operations.get(i) + ".");
@@ -480,7 +525,7 @@ public class SemanticAnalyzer {
     }
 
     private String analyzeNot(AST.NOT not) {
-        String returnType = analyzeExpression(not);
+        String returnType = analyzeExpression(not.child);
         if (returnType.equals("bool")
                 || returnType.equals("int")
                 || returnType.equals("string")
@@ -525,18 +570,24 @@ public class SemanticAnalyzer {
         String sig = buildMethodInfo(functionCall.name, args).getSignature();
 
         Scope.MethodInfo methodInfo = currentScope.getMethod(sig);
-        if (methodInfo == null) {
+        Scope.MethodInfo AncestorMethod = findMethodInAncestors(currentClass, sig);
+        if (methodInfo == null && AncestorMethod == null) {
             printCurrentScope();
             throw new SemanticException("Can not find function " + sig);
         }
 
+        String returnType;
+        if (methodInfo == null) {
+            returnType = AncestorMethod.returnType;
+        } else {
+            returnType = methodInfo.returnType;
+        }
+
         if (functionCall.next == null) {
-            return methodInfo.returnType;
+            return returnType;
         }
 
         if (functionCall.next instanceof AST.VariableCall n) {
-
-            String returnType = methodInfo.returnType;
 
             if (isPrimitive(returnType)) {
                 printCurrentScope();
@@ -560,7 +611,6 @@ public class SemanticAnalyzer {
             return rType;
 
         } else if (functionCall.next instanceof AST.FunctionCall n) {
-            String returnType = methodInfo.returnType;
 
             if (isPrimitive(returnType)) {
                 throw new SemanticException(
