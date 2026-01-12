@@ -9,13 +9,13 @@ public class Main {
     static void main(String... args) throws IOException, URISyntaxException {
 
         String path;
-        path = "pos/myTest.cpp";
+        // path = "pos/myTest.cpp";
 
         // path = "pos/GOLD01_basics.cpp";
         // path = "pos/GOLD02_ref_params.cpp";
         // path = "pos/GOLD03_classes_dispatch.cpp";
         // path = "pos/GOLD04_slicing.cpp";
-        // path = "pos/GOLD05_virtual_override.cpp";
+        path = "pos/GOLD05_virtual_override.cpp";
         // path = "pos/GOLD06_constructors_basic.cpp";
         // path = "pos/GOLD07_constructors_inheritance.cpp";
 

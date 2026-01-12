@@ -181,7 +181,7 @@ public class AST {
                 lines.add(toAST(statment.whileLoop()));
             }
             if (statment.assignment() != null) {
-                    lines.add(toAST(statment.assignment()));
+                lines.add(toAST(statment.assignment()));
             }
             if (statment.logicalOr() != null) {
                 lines.add(toAST(statment.logicalOr()));
@@ -220,10 +220,10 @@ public class AST {
             return new VariableDeclaration(type, varName, (IdChainElement) call);
         }
         ASTToken expression = null;
-            if (e.logicalOr() != null) {
-                expression = toAST(e.logicalOr());
-            }
-        
+        if (e.logicalOr() != null) {
+            expression = toAST(e.logicalOr());
+        }
+
         return new VariableDeclaration(type, varName, expression);
     }
 
@@ -231,11 +231,10 @@ public class AST {
         if (e == null) return null;
         ASTToken expression = null;
 
-        
         if (e.logicalOr() != null) {
             expression = toAST(e.logicalOr());
         }
-        
+
         return new ReturnStatement(expression);
     }
 
@@ -506,10 +505,8 @@ public class AST {
         if (e == null) return null;
         ArrayList<ASTToken> expressions = new ArrayList<>();
 
-        for (MiniCppParser.LogicalOrContext expr : e.logicalOr())
-            expressions.add(toAST(expr));
+        for (MiniCppParser.LogicalOrContext expr : e.logicalOr()) expressions.add(toAST(expr));
 
-        
         return new Args(expressions);
     }
 
@@ -622,8 +619,7 @@ public class AST {
         public AttributeDeclaration(String type, String name) {
             if (type.endsWith("&")) {
                 this.type = type.substring(0, type.length() - 1);
-            }
-            else{
+            } else {
                 this.type = type;
             }
             this.name = name;
@@ -655,10 +651,9 @@ public class AST {
             this.virtual = virtual;
             if (type.endsWith("&")) {
                 this.type = type.substring(0, type.length() - 1);
-                }
-                else{
-                    this.type = type;
-                }
+            } else {
+                this.type = type;
+            }
             this.methodName = methodName;
             this.paramList = paramList;
             this.block = block;
@@ -714,9 +709,8 @@ public class AST {
         public ParamList(ArrayList<String> type, ArrayList<String> name) {
             for (String t : type) {
                 if (t.endsWith("&")) {
-                this.type.add(t.substring(0, t.length() - 1));
-                }
-                else{
+                    this.type.add(t.substring(0, t.length() - 1));
+                } else {
                     this.type.add(t);
                 }
             }
@@ -781,10 +775,8 @@ public class AST {
                 String type, String functionName, ParamList paramList, Block block) {
             if (type.endsWith("&")) {
                 this.type = type.substring(0, type.length() - 1);
-            }
-            else{
+            } else {
                 this.type = type;
-                
             }
             this.functionName = functionName;
             this.paramList = paramList;
@@ -816,10 +808,8 @@ public class AST {
         public VariableDeclaration(String type, String varName, ASTToken expression) {
             if (type.endsWith("&")) {
                 this.type = type.substring(0, type.length() - 1);
-            }
-            else{
+            } else {
                 this.type = type;
-                
             }
             this.varName = varName;
             this.expression = expression;
@@ -830,10 +820,8 @@ public class AST {
             this.varCall = varCall;
             if (type.endsWith("&")) {
                 this.type = type.substring(0, type.length() - 1);
-            }
-            else{
+            } else {
                 this.type = type;
-                
             }
             this.varName = varName;
             this.deepcopy = true;
@@ -1020,10 +1008,8 @@ public class AST {
         public Literal(String type, String value, String vorzeichen) {
             if (type.endsWith("&")) {
                 this.type = type.substring(0, type.length() - 1);
-            }
-            else{
+            } else {
                 this.type = type;
-                
             }
             this.value = value;
             this.vorzeichen = vorzeichen;
@@ -1140,14 +1126,12 @@ public class AST {
         String type;
 
         public Type(String type) {
-            
+
             if (type.endsWith("&")) {
                 this.type = type.substring(0, type.length() - 1);
-            }
-            else{
+            } else {
                 this.type = type;
             }
-            
         }
 
         @Override

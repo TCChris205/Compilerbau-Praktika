@@ -1,5 +1,4 @@
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,16 +14,12 @@ public class Scope {
         String value;
         Boolean isReference;
 
-        public VariableInfo(String name,
-        String type,
-        String value,
-        Boolean isReference) {
+        public VariableInfo(String name, String type, String value, Boolean isReference) {
             this.name = name;
             this.type = type;
             this.value = value;
             this.isReference = isReference;
         }
-        
     }
 
     public static class ClassInfo {
@@ -38,7 +33,7 @@ public class Scope {
             this.parent = parent;
         }
     }
-    
+
     public static class MethodInfo {
         String name;
         String returnType;
@@ -78,14 +73,16 @@ public class Scope {
 
     public void declareVariable(VariableInfo var) {
         if (variables.containsKey(var.name)) {
-            throw new SemanticException("Variable '" + var.name + "' already declared in this scope");
+            throw new SemanticException(
+                    "Variable '" + var.name + "' already declared in this scope");
         }
         variables.put(var.name, var);
     }
 
     public void declareMethod(String signature, MethodInfo info) {
         if (variables.containsKey(signature)) {
-            throw new SemanticException("Variable '" + signature + "' already declared in this scope");
+            throw new SemanticException(
+                    "Variable '" + signature + "' already declared in this scope");
         }
         methods.put(signature, info);
     }
@@ -126,8 +123,4 @@ public class Scope {
         }
         return null;
     }
-
 }
-
-
-
