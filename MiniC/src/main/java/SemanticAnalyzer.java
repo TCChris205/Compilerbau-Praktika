@@ -237,6 +237,11 @@ public class SemanticAnalyzer {
                                     + "'");
                 }
 
+                // Check for virtual method override compatibility
+                if (classInfo.parent != null) {
+                    validateVirtualMethodOverride(methodInfo, classInfo);
+                }
+
                 classScope.methods.put(methodInfo.getSignature(), methodInfo);
                 classInfo.methods.put(methodInfo.getSignature(), methodInfo);
             }
@@ -259,6 +264,27 @@ public class SemanticAnalyzer {
 
         currentScope = prevScope;
         currentClass = prevClass;
+    }
+
+    private void validateVirtualMethodOverride(
+            Scope.MethodInfo childMethod, Scope.ClassInfo childClass) {
+        Scope.MethodInfo parentMethod =
+                findMethodInAncestors(childClass.parent, childMethod.getSignature());
+
+        if (parentMethod != null) {
+            if (!childMethod.returnType.equals(parentMethod.returnType)) {
+                throw new SemanticException(
+                        "Method override '"
+                                + childMethod.getSignature()
+                                + "' in class '"
+                                + childClass.name
+                                + "' has different return type: '"
+                                + childMethod.returnType
+                                + "' vs '"
+                                + parentMethod.returnType
+                                + "'");
+            }
+        }
     }
 
     private void analyzeConstructor(AST.Constructor ctor) {
@@ -324,27 +350,25 @@ public class SemanticAnalyzer {
         Scope.VariableInfo variableInfo = buildVariableInfo(variableDeclaration);
 
         if (variableInfo.type != null) {
-            currentScope.variables.put(variableInfo.name, variableInfo);
+            currentScope.declareVariable(variableInfo);
             if (variableDeclaration.expression != null) {
                 String exprtype = analyzeExpression(variableDeclaration.expression);
 
                 if (variableInfo.type.equals(exprtype)
                         || isSubclassOf(exprtype, variableInfo.type)) {
-                    currentScope.variables.put(variableInfo.name, variableInfo);
                     return;
                 }
                 printCurrentScope();
                 throw new SemanticException(
                         "types dont match " + variableInfo.type + " is not equal to " + exprtype);
             }
-            currentScope.variables.put(variableInfo.name, variableInfo);
         } else {
             if (variableDeclaration.expression != null) {
                 variableInfo.type = analyzeExpression(variableDeclaration.expression);
-                currentScope.variables.put(variableInfo.name, variableInfo);
+                currentScope.declareVariable(variableInfo);
                 return;
             }
-            currentScope.variables.put(variableInfo.name, variableInfo);
+            currentScope.declareVariable(variableInfo);
         }
     }
 
