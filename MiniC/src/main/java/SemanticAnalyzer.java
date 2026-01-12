@@ -237,19 +237,6 @@ public class SemanticAnalyzer {
                                     + "'");
                 }
 
-                Scope.MethodInfo parentMethod =
-                        findMethodInAncestors(classInfo.parent, methodInfo.getSignature());
-                if (parentMethod != null) {
-
-                    if (!parentMethod.isVirtual) {
-                        printCurrentScope();
-                        throw new SemanticException(
-                                "Method '"
-                                        + methodInfo.getSignature()
-                                        + "' can only override a virtual method");
-                    }
-                }
-
                 classScope.methods.put(methodInfo.getSignature(), methodInfo);
                 classInfo.methods.put(methodInfo.getSignature(), methodInfo);
             }
