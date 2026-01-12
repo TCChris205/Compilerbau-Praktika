@@ -151,7 +151,7 @@ public class SemanticAnalyzer {
                                     + classInfo.name
                                     + "'");
                 }
-                currentScope.methods.put(constructorInfo.getSignature(), constructorInfo);
+                currentScope.declareMethod(constructorInfo.getSignature(), constructorInfo);
             }
         }
 
@@ -164,7 +164,7 @@ public class SemanticAnalyzer {
                             new ArrayList<String>(),
                             false,
                             className);
-            currentScope.methods.put(constructorInfo.getSignature(), constructorInfo);
+            currentScope.declareMethod(constructorInfo.getSignature(), constructorInfo);
         }
 
         ArrayList<String> ParamTypes = new ArrayList<>();
@@ -172,8 +172,8 @@ public class SemanticAnalyzer {
         Scope.MethodInfo constructorInfo =
                 new Scope.MethodInfo(
                         className, className, ParamTypes, Arrays.asList("value"), false, className);
-        if (currentScope.getMethod(constructorInfo.getSignature()) == null) {
-            globalScope.methods.put(constructorInfo.getSignature(), constructorInfo);
+        if (globalScope.getMethod(constructorInfo.getSignature()) == null) {
+            globalScope.declareMethod(constructorInfo.getSignature(), constructorInfo);
         }
     }
 
@@ -222,7 +222,7 @@ public class SemanticAnalyzer {
                                     + "'");
                 }
                 Scope.VariableInfo varInfo = buildVariableInfo(attrDecl);
-                classScope.variables.put(attrDecl.name, varInfo);
+                classScope.declareVariable(varInfo);
                 classInfo.attributes.put(attrDecl.name, varInfo);
             } else if (member instanceof AST.MethodDefinition methodDef) {
                 Scope.MethodInfo methodInfo = buildMethodInfo(methodDef, classInfo.name);
@@ -242,7 +242,7 @@ public class SemanticAnalyzer {
                     validateVirtualMethodOverride(methodInfo, classInfo);
                 }
 
-                classScope.methods.put(methodInfo.getSignature(), methodInfo);
+                classScope.declareMethod(methodInfo.getSignature(), methodInfo);
                 classInfo.methods.put(methodInfo.getSignature(), methodInfo);
             }
         }
