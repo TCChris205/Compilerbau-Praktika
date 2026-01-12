@@ -82,12 +82,11 @@ public class AST {
                 if (statment.whileLoop() != null) {
                     lines.add(toAST(statment.whileLoop()));
                 }
-                if (statment.expression() != null) {
-                    if (statment.expression().assignment() != null) {
-                        lines.add(toAST(statment.expression().assignment()));
-                    } else if (statment.expression().logicalOr() != null) {
-                        lines.add(toAST(statment.expression().logicalOr()));
-                    }
+                if (statment.assignment() != null) {
+                    lines.add(toAST(statment.assignment()));
+                }
+                if (statment.logicalOr() != null) {
+                    lines.add(toAST(statment.logicalOr()));
                 }
             }
             if (l.classDeclaration() != null) {
@@ -181,12 +180,11 @@ public class AST {
             if (statment.whileLoop() != null) {
                 lines.add(toAST(statment.whileLoop()));
             }
-            if (statment.expression() != null) {
-                if (statment.expression().assignment() != null) {
-                    lines.add(toAST(statment.expression().assignment()));
-                } else if (statment.expression().logicalOr() != null) {
-                    lines.add(toAST(statment.expression().logicalOr()));
-                }
+            if (statment.assignment() != null) {
+                    lines.add(toAST(statment.assignment()));
+            }
+            if (statment.logicalOr() != null) {
+                lines.add(toAST(statment.logicalOr()));
             }
         }
         return new Block(lines);
@@ -222,15 +220,10 @@ public class AST {
             return new VariableDeclaration(type, varName, (IdChainElement) call);
         }
         ASTToken expression = null;
-
-        if (e.expression() != null) {
-            if (e.expression().assignment() != null) {
-                expression = toAST(e.expression().assignment());
+            if (e.logicalOr() != null) {
+                expression = toAST(e.logicalOr());
             }
-            if (e.expression().logicalOr() != null) {
-                expression = toAST(e.expression().logicalOr());
-            }
-        }
+        
         return new VariableDeclaration(type, varName, expression);
     }
 
@@ -238,13 +231,11 @@ public class AST {
         if (e == null) return null;
         ASTToken expression = null;
 
-        if (e.expression() != null) {
-            if (e.expression().assignment() != null) {
-                expression = toAST(e.expression().assignment());
-            } else if (e.expression().logicalOr() != null) {
-                expression = toAST(e.expression().logicalOr());
-            }
+        
+        if (e.logicalOr() != null) {
+            expression = toAST(e.logicalOr());
         }
+        
         return new ReturnStatement(expression);
     }
 
@@ -252,16 +243,14 @@ public class AST {
         if (e == null) return null;
         ASTToken expression = null;
 
-        if (e.expression().assignment() != null) {
-            expression = toAST(e.expression().assignment());
-        } else if (e.expression().logicalOr() != null) {
-            expression = toAST(e.expression().logicalOr());
+        if (e.logicalOr() != null) {
+            expression = toAST(e.logicalOr());
         }
 
-        Block block = toAST(e.block(1));
+        Block block = toAST(e.block(0));
         Block elseBlock = null;
         if (e.block().size() > 1) {
-            elseBlock = toAST(e.block(2));
+            elseBlock = toAST(e.block(1));
         }
 
         return new IfStatement(expression, block, elseBlock);
@@ -272,10 +261,8 @@ public class AST {
         Block block = toAST(e.block());
         ASTToken expression = null;
 
-        if (e.expression().assignment() != null) {
-            expression = toAST(e.expression().assignment());
-        } else if (e.expression().logicalOr() != null) {
-            expression = toAST(e.expression().logicalOr());
+        if (e.logicalOr() != null) {
+            expression = toAST(e.logicalOr());
         }
 
         return new WhileLoop(block, expression);
@@ -425,14 +412,9 @@ public class AST {
         boolean invert;
         invert = e.NOT() != null;
 
-        if (e.expression() != null) {
+        if (e.logicalOr() != null) {
             ASTToken expression = null;
-
-            if (e.expression().assignment() != null) {
-                expression = toAST(e.expression().assignment());
-            } else if (e.expression().logicalOr() != null) {
-                expression = toAST(e.expression().logicalOr());
-            }
+            expression = toAST(e.logicalOr());
 
             if (invert) {
                 return new NOT(expression);
@@ -524,13 +506,10 @@ public class AST {
         if (e == null) return null;
         ArrayList<ASTToken> expressions = new ArrayList<>();
 
-        for (MiniCppParser.ExpressionContext expr : e.expression())
-            if (expr.assignment() != null) {
-                expressions.add(toAST(expr.assignment()));
-            } else if (expr.logicalOr() != null) {
-                expressions.add(toAST(expr.logicalOr()));
-            }
+        for (MiniCppParser.LogicalOrContext expr : e.logicalOr())
+            expressions.add(toAST(expr));
 
+        
         return new Args(expressions);
     }
 
@@ -641,7 +620,12 @@ public class AST {
         public String name;
 
         public AttributeDeclaration(String type, String name) {
-            this.type = type;
+            if (type.endsWith("&")) {
+                this.type = type.substring(0, type.length() - 1);
+            }
+            else{
+                this.type = type;
+            }
             this.name = name;
         }
 
@@ -669,7 +653,12 @@ public class AST {
         public MethodDefinition(
                 boolean virtual, String type, String methodName, ParamList paramList, Block block) {
             this.virtual = virtual;
-            this.type = type;
+            if (type.endsWith("&")) {
+                this.type = type.substring(0, type.length() - 1);
+                }
+                else{
+                    this.type = type;
+                }
             this.methodName = methodName;
             this.paramList = paramList;
             this.block = block;
@@ -723,7 +712,14 @@ public class AST {
         public ArrayList<String> name = new ArrayList<>();
 
         public ParamList(ArrayList<String> type, ArrayList<String> name) {
-            this.type = type;
+            for (String t : type) {
+                if (t.endsWith("&")) {
+                this.type.add(t.substring(0, t.length() - 1));
+                }
+                else{
+                    this.type.add(t);
+                }
+            }
             this.name = name;
         }
 
@@ -783,7 +779,13 @@ public class AST {
 
         public FunctionDeclaration(
                 String type, String functionName, ParamList paramList, Block block) {
-            this.type = type;
+            if (type.endsWith("&")) {
+                this.type = type.substring(0, type.length() - 1);
+            }
+            else{
+                this.type = type;
+                
+            }
             this.functionName = functionName;
             this.paramList = paramList;
             this.block = block;
@@ -812,15 +814,28 @@ public class AST {
         public IdChainElement varCall;
 
         public VariableDeclaration(String type, String varName, ASTToken expression) {
-            this.type = type;
+            if (type.endsWith("&")) {
+                this.type = type.substring(0, type.length() - 1);
+            }
+            else{
+                this.type = type;
+                
+            }
             this.varName = varName;
             this.expression = expression;
         }
 
         public VariableDeclaration(String type, String varName, IdChainElement varCall) {
-            this.type = type;
             this.varName = varName;
             this.varCall = varCall;
+            if (type.endsWith("&")) {
+                this.type = type.substring(0, type.length() - 1);
+            }
+            else{
+                this.type = type;
+                
+            }
+            this.varName = varName;
             this.deepcopy = true;
         }
 
@@ -934,8 +949,8 @@ public class AST {
 
     public class Operation extends ASTToken {
 
-        ArrayList<String> operations;
-        ArrayList<ASTToken> elements;
+        public ArrayList<String> operations;
+        public ArrayList<ASTToken> elements;
 
         public Operation(ArrayList<ASTToken> elements, ArrayList<String> operations) {
             this.operations = operations;
@@ -1003,7 +1018,13 @@ public class AST {
         String vorzeichen;
 
         public Literal(String type, String value, String vorzeichen) {
-            this.type = type;
+            if (type.endsWith("&")) {
+                this.type = type.substring(0, type.length() - 1);
+            }
+            else{
+                this.type = type;
+                
+            }
             this.value = value;
             this.vorzeichen = vorzeichen;
         }
@@ -1063,7 +1084,7 @@ public class AST {
 
     public class Args extends ASTToken {
 
-        ArrayList<ASTToken> expressions;
+        public ArrayList<ASTToken> expressions;
 
         public Args(ArrayList<ASTToken> expressions) {
             this.expressions = expressions;
@@ -1119,7 +1140,14 @@ public class AST {
         String type;
 
         public Type(String type) {
-            this.type = type;
+            
+            if (type.endsWith("&")) {
+                this.type = type.substring(0, type.length() - 1);
+            }
+            else{
+                this.type = type;
+            }
+            
         }
 
         @Override

@@ -48,7 +48,8 @@ statement
     |   returnStatement
     |   ifStatement
     |   whileLoop
-    |   expression SEMICOL
+    |   assignment SEMICOL
+    |   logicalOr SEMICOL
     ;
 
 block
@@ -60,7 +61,7 @@ functionDeclaration
     ;
 
 variableDeclaration
-    :   type ID (ASSIGN expression)? SEMICOL
+    :   type ID (ASSIGN logicalOr)? SEMICOL
     |   type DEEPCOPY ID ASSIGN (idChain DOT)? ID SEMICOL
     ;
 
@@ -70,23 +71,19 @@ idChain
     ;
 
 returnStatement
-    :   RETURN_KEY expression? SEMICOL
+    :   RETURN_KEY logicalOr? SEMICOL
     ;
 
 ifStatement
-    :   IF_KEY LPAREN expression RPAREN block (ELSE_KEY block)?
+    :   IF_KEY LPAREN logicalOr RPAREN block (ELSE_KEY block)?
     ;
 
 whileLoop
-    :   WHILE_KEY LPAREN expression RPAREN block
+    :   WHILE_KEY LPAREN logicalOr RPAREN block
     ;
 
 // ----------------------- expression -----------------------
 
-expression
-    :   assignment
-    |   logicalOr
-    ;
 
 assignment
     : (idChain DOT)? ID ASSIGN logicalOr
@@ -119,11 +116,11 @@ term
 unary
     : NOT? idChain
     | NOT? (PLUS|MINUS)? literals
-    | NOT? LPAREN expression RPAREN
+    | NOT? LPAREN logicalOr RPAREN
     ;
 
 args
-    : expression (COMMA expression)*
+    : logicalOr (COMMA logicalOr)*
     ;
 
 literals

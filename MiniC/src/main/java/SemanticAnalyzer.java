@@ -1,3 +1,7 @@
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 public class SemanticAnalyzer {
     private Scope globalScope;
     private Scope currentScope;
@@ -27,33 +31,79 @@ public class SemanticAnalyzer {
     }
 
     private Scope.MethodInfo buildMethodInfo(AST.MethodDefinition methodDef, String definingClass) {
+        
+        ArrayList<String> types = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+        if (methodDef.paramList != null) {
+            types = methodDef.paramList.type;
+            names = methodDef.paramList.name;
+        }
+
         return new Scope.MethodInfo(
             methodDef.methodName,
             methodDef.type,
-            methodDef.paramList.type,
-            methodDef.paramList.name,
+            types,
+            names,
             methodDef.virtual,
             definingClass
         );
     }
 
+    private Scope.MethodInfo buildMethodInfo(String name, ArrayList<String> paramTypes) {
+
+        if (paramTypes == null ) {
+            return new Scope.MethodInfo(
+            name,
+            null,
+            new ArrayList<String>(),
+            null,
+            false,
+            null
+        );
+        }
+        return new Scope.MethodInfo(
+            name,
+            null,
+            paramTypes,
+            null,
+            false,
+            null
+        );
+    }
+
     private Scope.MethodInfo buildMethodInfo(AST.FunctionDeclaration methodDef) {
+
+        ArrayList<String> types = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+        if (methodDef.paramList != null) {
+            types = methodDef.paramList.type;
+            names = methodDef.paramList.name;
+        }
+        
         return new Scope.MethodInfo(
             methodDef.functionName,
             methodDef.type,
-            methodDef.paramList.type,
-            methodDef.paramList.name,
+            types,
+            names,
             false,
             null
         );
     }
 
     private Scope.MethodInfo buildConstructorInfo(AST.Constructor ctor) {
+
+        ArrayList<String> types = new ArrayList<>();
+        ArrayList<String> names = new ArrayList<>();
+        if (ctor.paramList != null) {
+            types = ctor.paramList.type;
+            names = ctor.paramList.name;
+        }
+
         return new Scope.MethodInfo(
             ctor.className,
             ctor.className,
-            ctor.paramList.type,
-            ctor.paramList.name,
+            types,
+            names,
             false,
             ctor.className
         );
@@ -100,6 +150,11 @@ public class SemanticAnalyzer {
 
     private void collectFunction(AST.FunctionDeclaration funcDecl){
         Scope.MethodInfo methodInfo = buildMethodInfo(funcDecl);
+        if (methodInfo.name.equals("main")) {
+            if (!(methodInfo.returnType.equals("void") || methodInfo.returnType.equals("int"))) {
+                throw new SemanticException("main function must return int or void");
+            }
+        }
         currentScope.declareMethod(methodInfo.getSignature(), methodInfo);
     }
 
@@ -141,6 +196,8 @@ public class SemanticAnalyzer {
             }
         }
 
+        classInfo.classScope = classScope;
+        
         for (AST.ASTToken member : classDecl.members) {
             if (member instanceof AST.Constructor constructor) {
                 analyzeConstructor(constructor);
@@ -155,16 +212,22 @@ public class SemanticAnalyzer {
     private void analyzeConstructor(AST.Constructor ctor) {
         Scope prevScope = currentScope;
         currentScope = new Scope(currentScope);
-
-        analyzeBlock(ctor.block);
-        
+        if (ctor.paramList != null) {
+            for(int i = 0; i < ctor.paramList.name.size(); i ++)
+            {
+                currentScope.declareVariable(new Scope.VariableInfo(ctor.paramList.name.get(i), ctor.paramList.type.get(i), "", false));
+            }
+        }
+        analyzeBlock(ctor.block, null);
         currentScope = prevScope;
     }
 
-    private void analyzeBlock(AST.Block block) {
+    private void analyzeBlock(AST.Block block, String returnType) {
+        Scope prevScope = currentScope;
+        currentScope = new Scope(currentScope);
         for (AST.ASTToken line : block.lines) {
             if (line instanceof AST.Block b){
-                analyzeBlock(b);
+                analyzeBlock(b, returnType);
             }
             else if (line instanceof AST.FunctionDeclaration f){
                 analyzeFunctionDeclaration(f);
@@ -173,92 +236,300 @@ public class SemanticAnalyzer {
                 analyzeVariableDeclaration(v);
             }
             else if (line instanceof AST.ReturnStatement r){
-                analyzeReturn(r);
+                analyzeReturn(r,returnType);
             }
             else if (line instanceof AST.IfStatement i){
-                analyzeIf(i);
+                analyzeIf(i,returnType);
             }
             else if (line instanceof AST.WhileLoop w){
-                analyzeWhile(w);
+                analyzeWhile(w,returnType);
             }
             else if (line instanceof AST.Assignment a){
                 analyzeAssignment(a);
             }
-            else if (line instanceof AST.Operation o){
-                analyzeOperation(o);
+            else {
+                analyzeExpression(line);
             }
-            else if (line instanceof AST.NOT n){
-                analyzeNot(n);
-            }
-            else if (line instanceof AST.Literal l){
-                analyzeLiteral(l);
-            }
-            else if (line instanceof AST.FunctionCall f){
-                analyzeFunctionCall(f);
-            }
-            else if (line instanceof AST.VariableCall v){
-                analyzeVariableCall(v);
-            }
-
         }
+        currentScope = prevScope;
     }
 
     private void analyzeFunctionDeclaration(AST.FunctionDeclaration functionDeclaration) {
-
+        Scope.MethodInfo methodInfo = buildMethodInfo(functionDeclaration);
+        currentScope.declareMethod(methodInfo.getSignature(), methodInfo);
+        Scope prevScope = currentScope;
+        currentScope = new Scope(currentScope);
+        if (functionDeclaration.paramList != null) {
+            for(int i = 0; i < functionDeclaration.paramList.name.size(); i ++)
+            {
+                currentScope.declareVariable(new Scope.VariableInfo(functionDeclaration.paramList.name.get(i), functionDeclaration.paramList.type.get(i), "", false));
+            }
+        }
+        analyzeBlock(functionDeclaration.block, functionDeclaration.type);
+        
+        currentScope = prevScope;
     }
 
     private void analyzeVariableDeclaration(AST.VariableDeclaration variableDeclaration) {
+        Scope.VariableInfo variableInfo = buildVariableInfo(variableDeclaration);
+        
+        if (variableInfo.type != null) {
+            currentScope.variables.put(variableInfo.name, variableInfo);
+            if (variableDeclaration.expression != null) {
+                String exprtype = analyzeExpression(variableDeclaration.expression);
 
+                if (variableInfo.type.equals(exprtype)) {
+                    currentScope.variables.put(variableInfo.name,variableInfo);
+                    return;
+                }
+                throw new SemanticException("types dont match " + variableInfo.type + " is not equal to " + exprtype);
+            }
+            currentScope.variables.put(variableInfo.name,variableInfo);
+        } else {
+            if (variableDeclaration.expression != null) {
+                variableInfo.type = analyzeExpression(variableDeclaration.expression);
+                currentScope.variables.put(variableInfo.name,variableInfo);
+                return;
+            }
+            currentScope.variables.put(variableInfo.name,variableInfo);
+        }
     }
 
-    private void analyzeReturn(AST.ReturnStatement returnStatement) {
-
+    private void analyzeReturn(AST.ReturnStatement returnStatement, String returnType) {
+        if (returnType == null) {
+            throw new SemanticException("Unexpected Return Call:" + returnStatement);
+        }
+        String type = analyzeExpression(returnStatement.expression);
+        if (!type.equals(returnType)) {
+            throw new SemanticException("Return Type '" + type + "' not equal to '" + returnType + "'");
+        }
     }
 
-    private void analyzeIf(AST.IfStatement ifStatement) {
+    private void analyzeIf(AST.IfStatement ifStatement, String returnType) {
+        String type = analyzeExpression(ifStatement.expression);
+        if (!type.equals("bool")) {
+            throw new SemanticException("Expression type '" + type + "' is not a boolean");
+        }
 
+        analyzeBlock(ifStatement.block, returnType);
+        if (ifStatement.elseBlock != null) {
+            analyzeBlock(ifStatement.elseBlock, returnType);
+        }
     }
 
-    private void analyzeWhile(AST.WhileLoop whileLoop) {
-
+    private void analyzeWhile(AST.WhileLoop whileLoop, String returnType) {
+        String type = analyzeExpression(whileLoop.expression);
+        if (!type.equals("bool")) {
+            throw new SemanticException("Expression type '" + type + "' is not a boolean");
+        }
+        
+        analyzeBlock(whileLoop.block, returnType);
     }
 
     private void analyzeAssignment(AST.Assignment assignment) {
+        String type = analyzeExpression(assignment.operation);
+        String setterType;
+        if (assignment.chain instanceof AST.VariableCall n) {
+            setterType = analyzeVariableCall(n);
+        }
+        else if(assignment.chain instanceof AST.FunctionCall n){
+            setterType = analyzeFunctionCall(n);
+        }
+        else{
+            throw new SemanticException("unexpected Token");
+        }
 
+        if (!type.equals(setterType)) {
+            throw new SemanticException("Expression Type '" + setterType + "' not equal to variable type'" + type + "'");
+        }
     }
 
     private void analyzeMethod(AST.MethodDefinition methodDefinition) {
 
+        Scope.MethodInfo methodInfo = buildMethodInfo(methodDefinition, null);
+        currentScope.declareMethod(methodInfo.getSignature(), methodInfo);
+        Scope prevScope = currentScope;
+        currentScope = new Scope(currentScope);
+        if (methodDefinition.paramList != null) {
+            for(int i = 0; i < methodDefinition.paramList.name.size(); i ++)
+            {
+                currentScope.declareVariable(new Scope.VariableInfo(methodDefinition.paramList.name.get(i), methodDefinition.paramList.type.get(i), "", false));
+            }
+        }
+        analyzeBlock(methodDefinition.block, methodDefinition.type);
+        
+        currentScope = prevScope;
     }
 
     private String analyzeOperation(AST.Operation operation) {
-        return "";
+        
+            // == != < > <= >= + - * / %
+            
+            AST.ASTToken op1 = operation.elements.get(0);
+            AST.ASTToken op2;
+            String op1Type = "";
+            String op2Type = "";
+            if(op1 instanceof AST.Operation o)
+            {
+                op1Type = analyzeOperation(o);
+            }
+            else
+            {
+                op1Type = analyzeExpression(op1);
+            }
+            
+        for(int i = 0; i < operation.operations.size(); i++)
+        {
+            op2 = operation.elements.get(i+1);
+            if(op2 instanceof AST.Operation o)
+            {
+                op2Type = analyzeOperation(o);
+            }
+            else
+            {
+                op2Type = analyzeExpression(op2);
+            }
+            if(operation.operations.get(i).equals("==") || operation.operations.get(i).equals("!="))
+            {
+                if(op1Type.equals(op2Type))
+                {
+                    op1Type = "bool";
+                }
+                else{
+                    throw new SemanticException("Cannot compare two different Types: " + op1Type + " and " + op2Type + ".");
+                }
+            }
+            else if(operation.operations.get(i).equals("<=")
+                || operation.operations.get(i).equals(">=") 
+                || operation.operations.get(i).equals("<") 
+                || operation.operations.get(i).equals(">"))
+            {
+                if(op1Type.equals("int") && op2Type.equals("int"))
+                {
+                    op1Type = "bool";
+                }
+                else{
+                    throw new SemanticException("Non integer values cannot be greater or less than. " + op1Type + " and " + op2Type + ".");
+                }
+            }
+            else if(operation.operations.get(i).equals("+") || operation.operations.get(i).equals("-") || operation.operations.get(i).equals("*") || operation.operations.get(i).equals("/") || operation.operations.get(i).equals("%"))
+            {
+                if(op1Type.equals("int") && op2Type.equals("int"))
+                {
+                    op1Type = "int";
+                }
+                else{
+                    throw new SemanticException("Cannot do " + operation.operations.get(i) + " operation on non int values.");
+                }
+            }
+            else{
+                throw new SemanticException("Unexpected Operation: " + operation.operations.get(i) + ".");
+            }
+        }
+        return op1Type;
+        
     }
 
     private String analyzeNot(AST.NOT not) {
-        return "";
-
+        String returnType = analyzeExpression(not);
+        if (returnType.equals("bool") || returnType.equals("int") || returnType.equals("string") || returnType.equals("char")) {
+            return "bool";
+        }
+        throw new SemanticException("Not can not be of type:'" + returnType + "'");
     }
 
     private String analyzeLiteral(AST.Literal literal) {
+
+        if(literal.type.equals("var")){
+            Scope.VariableInfo variableInfo = currentScope.getVariable(literal.value);
+
+            if (variableInfo.type == null) {
+                throw new SemanticException("Variable: " + variableInfo.name + " not initialized");
+            }
+            return variableInfo.type;
+        }
         return literal.type;
     }
 
+    private ArrayList<String> analyzeArgs(AST.Args args) {
+        ArrayList<String> a = new ArrayList<String>();
+
+        if (args.expressions == null) {
+            return a;
+        }
+        for (AST.ASTToken expression : args.expressions) {
+            a.add(analyzeExpression(expression));
+        }
+        return a;
+    }
+
     private String analyzeFunctionCall(AST.FunctionCall functionCall) {
-        buildMethodInfo(functionCall);
+        ArrayList<String> args =  analyzeArgs(functionCall.args);
+
+
+        String sig = buildMethodInfo(functionCall.name, args).getSignature();
+        //Check if method exists
+        Scope.MethodInfo methodInfo = currentScope.getMethod(sig);
+        if (methodInfo == null) {
+            throw new SemanticException("Can not find function " + sig);
+        }
+        //check if has a next
         if (functionCall.next == null) {
+            return methodInfo.returnType;
+        }
+
+        if (functionCall.next instanceof AST.VariableCall n) {
+            //Check if Return value of func has variable
+            String returnType = methodInfo.returnType;
+
+            if (isPrimitive(returnType)){
+                throw new SemanticException(returnType + " is primitive and has no variable called " + n);
+            }
+
+            Scope.ClassInfo classInfo = globalScope.getClass(returnType);
+
+            if (classInfo == null) {
+                throw new SemanticException(returnType + " class not found");
+            }
+            Scope prevScope = currentScope;
+            currentScope = classInfo.classScope;
+            String rType = analyzeVariableCall(n);
+            currentScope = prevScope;
+            return rType;
             
+        }
+
+        else if (functionCall.next instanceof AST.FunctionCall n){
+            //Check if Return value of func has method next
+            String returnType = methodInfo.returnType;
+
+            if (isPrimitive(returnType)){
+                throw new SemanticException(returnType + " is primitive and has no variable called " + n);
+            }
+
+            Scope.ClassInfo classInfo = globalScope.getClass(returnType);
+
+            if (classInfo == null) {
+                throw new SemanticException(returnType + " class not found");
+            }
+            Scope prevScope = currentScope;
+            currentScope = classInfo.classScope;
+            String rType = analyzeFunctionCall(n);
+            currentScope = prevScope;
+            return rType;
         }
         return "";
 
     }
     
     private String analyzeVariableCall(AST.VariableCall variableCall) {
-        if (variableCall.next == null){
-            Scope.VariableInfo vInfo = currentScope.variables.get(variableCall.name);
+        if (variableCall.next == null){            Scope.VariableInfo vInfo = currentScope.getVariable(variableCall.name);
+            if (vInfo == null) {
+                throw new SemanticException("Variable not found: '" + variableCall.name + "'");
+            }
             return vInfo.type;
         }
-        
+
         if (variableCall.next instanceof AST.VariableCall n) {
             return analyzeVariableCall(n);
         }
@@ -270,10 +541,59 @@ public class SemanticAnalyzer {
         throw new SemanticException("unexpected AST Type found");
     }
 
-    private void analyzeStatement(AST.ASTToken classDecl) {
 
+    private void analyzeStatement(AST.ASTToken statement) {
+    
+        if (statement instanceof AST.Block b){
+            analyzeBlock(b,null);
+        }
+        else if (statement instanceof AST.FunctionDeclaration f){
+            analyzeFunctionDeclaration(f);
+        }
+        else if (statement instanceof AST.VariableDeclaration v){
+            analyzeVariableDeclaration(v);
+        }
+        else if (statement instanceof AST.ReturnStatement r){
+            analyzeReturn(r, null);
+        }
+        else if (statement instanceof AST.IfStatement i){
+            analyzeIf(i,null);
+        }
+        else if (statement instanceof AST.WhileLoop w){
+            analyzeWhile(w,null);
+        }
+        else if (statement instanceof AST.Assignment a){
+            analyzeAssignment(a);
+        }
+        else {
+            analyzeExpression(statement);
+        }
+    
     }
 
+    private String analyzeExpression(AST.ASTToken expression) {
+        if (expression instanceof AST.Operation o){
+            return analyzeOperation(o);
+        }
+        else if (expression instanceof AST.NOT n){
+            return analyzeNot(n);
+        }
+        else if (expression instanceof AST.Literal l){
+            return analyzeLiteral(l);
+        }
+        else if (expression instanceof AST.FunctionCall f){
+            return analyzeFunctionCall(f);
+        }
+        else if (expression instanceof AST.VariableCall v){
+            return analyzeVariableCall(v);
+        }
+        throw new SemanticException("Unexpected Token in Expression: " + expression.toString());
+    }
+
+    private boolean isPrimitive(String returnType) {
+        List<String> primitiveType = Arrays.asList("int", "bool", "string", "char", "void");
+        return primitiveType.contains(returnType);
+    }
 }
 
 class SemanticException extends RuntimeException {

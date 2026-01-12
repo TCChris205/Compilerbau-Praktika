@@ -1,29 +1,25 @@
 #include "hsbi_runtime.h"
 
-class Point {
-public:
-  int x;
-  int y;
-
-  // Default-Konstruktor: ohne Initialisierungsliste, Felder im Body setzen
-  Point() {x = 0; y = 0; }
-
-  // Parametrisierter Konstruktor
-  Point(int a, int b) { x = a; y = b; }
-
-  int sum() { return x + y; }
-};
+int inc(int& r) { r = r + 1; return r; }
+void swap2(int& a, int& b) { int t = a; a = b; b = t; }
 
 int main() {
-  Point p;            // Default-Konstruktor
-  print_int(p.sum()); // 0
+   int x = 10;
 
-  Point q = Point(3, 4); // Parametrisierter Konstruktor
-  print_int(q.sum());    // 7
+   int a = 3;
+   int b = 9;
+   swap2(a, b);
 
-  return 0;
+   // lokale Referenz
+   int& rx = x;
+   rx = rx + 5;
+
+   return 0;
 }
 /* EXPECT (Zeile für Zeile):
-0
-7
+11
+11
+9
+3
+16
 */

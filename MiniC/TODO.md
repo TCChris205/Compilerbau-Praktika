@@ -65,22 +65,21 @@
   - [x] Klasse entfernen
 - [x] NOT Remove 
 
-- [ ] DotChains
-
 ## Sem. Analyse
 
 - [ ] Referenzvariable -> int x = 10, int& rx = x, dass rx immer gleich x ist
 - [ ] Overload (Auch Konstruktor)  -> Overloads dürfen nur bei Exakt passender Signatur (Name, Attributanzahl und Typ) gecalled werden
 - [ ] Vererbung -> class D: public B {...}, B ist die Elternklasse
 - [ ] Bei Vergleichen: Alle außer '==' und '!=' nur für int und char, sonst auch bool und string
-- [ ] Full Planning still necessary
-
-## Interpreter
+- [ ] Standardkonstruktoren
 
 - [ ] Standartfunktionen implementieren
   - [ ] print_bool
   - [ ] print_int
   - [ ] print_char
   - [ ] print_string
-- [ ] Ein SourceFile mit einer `int main()` oder `void main()`
+  - [ ] Ein SourceFile mit einer `int main()` oder `void main()`
+
+## Interpreter
+
 - [ ] Planning

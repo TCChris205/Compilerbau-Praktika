@@ -63,10 +63,9 @@ public class Main {
             AST.Start astToken = ast.toAST(tree);
             System.out.println(astToken.toString());
 
-            // Perform semantic analysis
-            SemanticAnalyzer analyzer = new SemanticAnalyzer();
-            analyzer.analyze(astToken);
-            System.out.println("\nSemantic analysis passed!");
+            SemanticAnalyzer sA = new SemanticAnalyzer();
+            sA.analyze(astToken);
+
         } catch (SemanticException e) {
             System.err.println("Semantic Error: " + e.getMessage());
         }

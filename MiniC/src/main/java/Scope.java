@@ -28,6 +28,7 @@ public class Scope {
     }
 
     public static class ClassInfo {
+        Scope classScope;
         String name;
         String parent;
         boolean hasDefaultConstructor = false;
