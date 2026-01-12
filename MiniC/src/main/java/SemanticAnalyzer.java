@@ -216,7 +216,7 @@ public class SemanticAnalyzer {
                         findMethodInAncestors(classInfo.parent, methodInfo.getSignature());
                 if (parentMethod != null) {
 
-                    if (!methodDef.virtual || !parentMethod.isVirtual) {
+                    if (!parentMethod.isVirtual) {
                         printCurrentScope();
                         throw new SemanticException(
                                 "Method '"
