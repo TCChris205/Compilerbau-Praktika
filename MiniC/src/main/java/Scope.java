@@ -27,6 +27,8 @@ public class Scope {
         String name;
         String parent;
         boolean hasDefaultConstructor = false;
+        Map<String, VariableInfo> attributes = new HashMap<>();
+        Map<String, MethodInfo> methods = new HashMap<>();
 
         public ClassInfo(String name, String parent) {
             this.name = name;

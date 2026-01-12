@@ -52,7 +52,7 @@ public class SemanticAnalyzer {
 
     private Scope.VariableInfo buildVariableInfo(AST.AttributeDeclaration attrDecl) {
         return new Scope.VariableInfo(
-                attrDecl.name, attrDecl.type, null, false // attrDecl.type.endsWith("&") needed???
+                attrDecl.name, attrDecl.type, null, false // 
                 );
     }
 
@@ -156,7 +156,6 @@ public class SemanticAnalyzer {
         }
 
         if (counter == 0) {
-            // add default Ctor
             Scope.MethodInfo constructorInfo =
                     new Scope.MethodInfo(
                             className,
@@ -168,7 +167,6 @@ public class SemanticAnalyzer {
             currentScope.methods.put(constructorInfo.getSignature(), constructorInfo);
         }
 
-        // add coppy Ctor if not exists
         ArrayList<String> ParamTypes = new ArrayList<>();
         ParamTypes.add(className);
         Scope.MethodInfo constructorInfo =
@@ -223,7 +221,9 @@ public class SemanticAnalyzer {
                                     + classInfo.name
                                     + "'");
                 }
-                classScope.variables.put(attrDecl.name, buildVariableInfo(attrDecl));
+                Scope.VariableInfo varInfo = buildVariableInfo(attrDecl);
+                classScope.variables.put(attrDecl.name, varInfo);
+                classInfo.attributes.put(attrDecl.name, varInfo);
             } else if (member instanceof AST.MethodDefinition methodDef) {
                 Scope.MethodInfo methodInfo = buildMethodInfo(methodDef, classInfo.name);
 
@@ -251,6 +251,7 @@ public class SemanticAnalyzer {
                 }
 
                 classScope.methods.put(methodInfo.getSignature(), methodInfo);
+                classInfo.methods.put(methodInfo.getSignature(), methodInfo);
             }
         }
 
@@ -340,7 +341,6 @@ public class SemanticAnalyzer {
             if (variableDeclaration.expression != null) {
                 String exprtype = analyzeExpression(variableDeclaration.expression);
 
-                // Allow exact type match or subclass assignment (slicing)
                 if (variableInfo.type.equals(exprtype)
                         || isSubclassOf(exprtype, variableInfo.type)) {
                     currentScope.variables.put(variableInfo.name, variableInfo);
@@ -412,7 +412,6 @@ public class SemanticAnalyzer {
             throw new SemanticException("unexpected Token");
         }
 
-        // Allow exact type match or subclass assignment (slicing)
         if (!type.equals(setterType) && !isSubclassOf(type, setterType)) {
             throw new SemanticException(
                     "Expression Type '"
@@ -601,14 +600,8 @@ public class SemanticAnalyzer {
                 printCurrentScope();
                 throw new SemanticException(returnType + " class not found");
             }
-            Scope prevScope = currentScope;
-            String prevClass = currentClass;
-            currentScope = classInfo.classScope;
-            currentClass = returnType;
-            String rType = analyzeVariableCall(n);
-            currentScope = prevScope;
-            currentClass = prevClass;
-            return rType;
+            
+            return analyzeVariableCallOnClass(n, classInfo);
 
         } else if (functionCall.next instanceof AST.FunctionCall n) {
 
@@ -622,14 +615,119 @@ public class SemanticAnalyzer {
             if (classInfo == null) {
                 throw new SemanticException(returnType + " class not found");
             }
-            Scope prevScope = currentScope;
-            String prevClass = currentClass;
-            currentScope = classInfo.classScope;
-            currentClass = returnType;
-            String rType = analyzeFunctionCall(n);
-            currentScope = prevScope;
-            currentClass = prevClass;
-            return rType;
+            
+            return analyzeFunctionCallOnClass(n, classInfo);
+        }
+        return "";
+    }
+    
+    private String analyzeVariableCallOnClass(AST.VariableCall variableCall, Scope.ClassInfo classInfo) {
+        if (variableCall.next == null) {
+            Scope.VariableInfo vInfo = classInfo.attributes.get(variableCall.name);
+            
+            if (vInfo == null && classInfo.parent != null) {
+                vInfo = findVariableInAncestors(classInfo.parent, variableCall.name);
+            }
+
+            if (vInfo == null) {
+                throw new SemanticException("Variable '" + variableCall.name + "' not found in class '" + classInfo.name + "'");
+            }
+            return vInfo.type;
+        }
+
+        if (variableCall.next instanceof AST.VariableCall n) {
+            Scope.VariableInfo vInfo = classInfo.attributes.get(variableCall.name);
+            if (vInfo == null && classInfo.parent != null) {
+                vInfo = findVariableInAncestors(classInfo.parent, variableCall.name);
+            }
+
+            if (vInfo == null) {
+                throw new SemanticException("Variable '" + variableCall.name + "' not found in class '" + classInfo.name + "'");
+            }
+
+            if (!isPrimitive(vInfo.type)) {
+                Scope.ClassInfo nextClassInfo = globalScope.getClass(vInfo.type);
+                if (nextClassInfo == null) {
+                    throw new SemanticException("Class not found: '" + vInfo.type + "'");
+                }
+                return analyzeVariableCallOnClass(n, nextClassInfo);
+            } else {
+                throw new SemanticException(vInfo.type + " is primitive and has no members");
+            }
+        } else if (variableCall.next instanceof AST.FunctionCall n) {
+            Scope.VariableInfo vInfo = classInfo.attributes.get(variableCall.name);
+            if (vInfo == null && classInfo.parent != null) {
+                vInfo = findVariableInAncestors(classInfo.parent, variableCall.name);
+            }
+
+            if (vInfo == null) {
+                throw new SemanticException("Variable '" + variableCall.name + "' not found in class '" + classInfo.name + "'");
+            }
+
+            if (!isPrimitive(vInfo.type)) {
+                Scope.ClassInfo nextClassInfo = globalScope.getClass(vInfo.type);
+                if (nextClassInfo == null) {
+                    throw new SemanticException("Class not found: '" + vInfo.type + "'");
+                }
+                return analyzeFunctionCallOnClass(n, nextClassInfo);
+            } else {
+                throw new SemanticException(vInfo.type + " is primitive and has no methods");
+            }
+        }
+
+        throw new SemanticException("unexpected AST Type found");
+    }
+    
+    
+    private String analyzeFunctionCallOnClass(AST.FunctionCall functionCall, Scope.ClassInfo classInfo) {
+        ArrayList<String> args = analyzeArgs(functionCall.args);
+
+        String sig = buildMethodInfo(functionCall.name, args).getSignature();
+
+        Scope.MethodInfo methodInfo = classInfo.methods.get(sig);
+        if (methodInfo == null && classInfo.parent != null) {
+            methodInfo = findMethodInAncestors(classInfo.parent, sig);
+        }
+        
+        if (methodInfo == null) {
+            throw new SemanticException("Can not find function " + sig + " in class " + classInfo.name);
+        }
+
+        String returnType = methodInfo.returnType;
+
+        if (functionCall.next == null) {
+            return returnType;
+        }
+
+        if (functionCall.next instanceof AST.VariableCall n) {
+
+            if (isPrimitive(returnType)) {
+                throw new SemanticException(
+                        returnType + " is primitive and has no variable called " + n);
+            }
+
+            Scope.ClassInfo nextClassInfo = globalScope.getClass(returnType);
+
+            if (nextClassInfo == null) {
+                throw new SemanticException(returnType + " class not found");
+            }
+            
+            return analyzeVariableCallOnClass(n, nextClassInfo);
+
+        } else if (functionCall.next instanceof AST.FunctionCall n) {
+
+            if (isPrimitive(returnType)) {
+                throw new SemanticException(
+                        returnType + " is primitive and has no variable called " + n);
+            }
+
+            Scope.ClassInfo nextClassInfo = globalScope.getClass(returnType);
+
+            if (nextClassInfo == null) {
+                throw new SemanticException(returnType + " class not found");
+            }
+            
+            return analyzeFunctionCallOnClass(n, nextClassInfo);
         }
         return "";
     }
@@ -665,14 +763,7 @@ public class SemanticAnalyzer {
                 if (classInfo == null) {
                     throw new SemanticException("Class not found: '" + vInfo.type + "'");
                 }
-                Scope prevScope = currentScope;
-                String prevClass = currentClass;
-                currentScope = classInfo.classScope;
-                currentClass = vInfo.type;
-                String rType = analyzeVariableCall(n);
-                currentScope = prevScope;
-                currentClass = prevClass;
-                return rType;
+                return analyzeVariableCallOnClass(n, classInfo);
             } else {
                 throw new SemanticException(vInfo.type + " is primitive and has no members");
             }
@@ -693,14 +784,7 @@ public class SemanticAnalyzer {
                 if (classInfo == null) {
                     throw new SemanticException("Class not found: '" + vInfo.type + "'");
                 }
-                Scope prevScope = currentScope;
-                String prevClass = currentClass;
-                currentScope = classInfo.classScope;
-                currentClass = vInfo.type;
-                String rType = analyzeFunctionCall(n);
-                currentScope = prevScope;
-                currentClass = prevClass;
-                return rType;
+                return analyzeFunctionCallOnClass(n, classInfo);
             } else {
                 throw new SemanticException(vInfo.type + " is primitive and has no methods");
             }
@@ -750,7 +834,6 @@ public class SemanticAnalyzer {
         return primitiveType.contains(returnType);
     }
 
-    /** Check if toCheck is a subclass of targetClass (or equal to it) */
     private boolean isSubclassOf(String toCheck, String targetClass) {
         if (toCheck == null || targetClass == null) {
             return false;
@@ -765,7 +848,6 @@ public class SemanticAnalyzer {
             return false;
         }
 
-        // Recursively check if parent is subclass of target
         return isSubclassOf(classInfo.parent, targetClass);
     }
 
@@ -775,13 +857,11 @@ public class SemanticAnalyzer {
         }
 
         Scope.ClassInfo classInfo = globalScope.getClass(className);
-        if (classInfo == null || classInfo.classScope == null) {
+        if (classInfo == null) {
             return null;
         }
 
-        // hier extra nicht classInfo.classScope.getMethod() weil uns hier nur der local scope
-        // intresiert
-        Scope.MethodInfo method = classInfo.classScope.methods.get(methodSignature);
+        Scope.MethodInfo method = classInfo.methods.get(methodSignature);
         if (method != null) {
             return method;
         }
@@ -795,13 +875,11 @@ public class SemanticAnalyzer {
         }
 
         Scope.ClassInfo classInfo = globalScope.getClass(className);
-        if (classInfo == null || classInfo.classScope == null) {
+        if (classInfo == null) {
             return null;
         }
 
-        // hier extra nicht classInfo.classScope.getVariable() weil uns hier nur der local scope
-        // intresiert
-        Scope.VariableInfo variable = classInfo.classScope.variables.get(variableName);
+        Scope.VariableInfo variable = classInfo.attributes.get(variableName);
         if (variable != null) {
             return variable;
         }
