@@ -335,10 +335,12 @@ public class SemanticAnalyzer {
             if (variableDeclaration.expression != null) {
                 String exprtype = analyzeExpression(variableDeclaration.expression);
 
-                if (variableInfo.type.equals(exprtype)) {
+                // Allow exact type match or subclass assignment (slicing)
+                if (variableInfo.type.equals(exprtype) || isSubclassOf(exprtype, variableInfo.type)) {
                     currentScope.variables.put(variableInfo.name,variableInfo);
                     return;
                 }
+                printCurrentScope();
                 throw new SemanticException("types dont match " + variableInfo.type + " is not equal to " + exprtype);
             }
             currentScope.variables.put(variableInfo.name,variableInfo);
@@ -396,7 +398,8 @@ public class SemanticAnalyzer {
             throw new SemanticException("unexpected Token");
         }
 
-        if (!type.equals(setterType)) {
+        // Allow exact type match or subclass assignment (slicing)
+        if (!type.equals(setterType) && !isSubclassOf(type, setterType)) {
             throw new SemanticException("Expression Type '" + setterType + "' not equal to variable type'" + type + "'");
         }
     }
@@ -722,6 +725,27 @@ public class SemanticAnalyzer {
     private boolean isPrimitive(String returnType) {
         List<String> primitiveType = Arrays.asList("int", "bool", "string", "char", "void");
         return primitiveType.contains(returnType);
+    }
+
+    /**
+     * Check if toCheck is a subclass of targetClass (or equal to it)
+     */
+    private boolean isSubclassOf(String toCheck, String targetClass) {
+        if (toCheck == null || targetClass == null) {
+            return false;
+        }
+        
+        if (toCheck.equals(targetClass)) {
+            return true;
+        }
+        
+        Scope.ClassInfo classInfo = globalScope.getClass(toCheck);
+        if (classInfo == null || classInfo.parent == null) {
+            return false;
+        }
+        
+        // Recursively check if parent is subclass of target
+        return isSubclassOf(classInfo.parent, targetClass);
     }
 
     private Scope.MethodInfo findMethodInAncestors(String className, String methodSignature) {
