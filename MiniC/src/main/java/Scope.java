@@ -39,22 +39,19 @@ public class Scope {
     public static class MethodInfo {
         String name;
         String returnType;
-        List<String> paramTypes;
-        List<String> paramNames;
+        List<VariableInfo> parameters;
         boolean isVirtual;
         String definingClass;
 
         public MethodInfo(
                 String name,
                 String returnType,
-                List<String> paramTypes,
-                List<String> paramNames,
+                List<VariableInfo> parameters,
                 boolean isVirtual,
                 String definingClass) {
             this.name = name;
             this.returnType = returnType;
-            this.paramTypes = paramTypes;
-            this.paramNames = paramNames;
+            this.parameters = parameters != null ? parameters : new java.util.ArrayList<>();
             this.isVirtual = isVirtual;
             this.definingClass = definingClass;
         }
@@ -62,8 +59,12 @@ public class Scope {
         public String getSignature() {
             StringBuilder sig = new StringBuilder(name);
             sig.append("/");
-            for (String paramType : paramTypes) {
-                sig.append(paramType).append(",");
+            for (VariableInfo param : parameters) {
+                sig.append(param.type);
+                if (param.isReference) {
+                    sig.append("&");
+                }
+                sig.append(",");
             }
             return sig.toString();
         }

@@ -150,11 +150,19 @@ public class AST {
         if (e == null) return null;
         ArrayList<String> type = new ArrayList<>();
         ArrayList<String> name = new ArrayList<>();
+        ArrayList<Boolean> isRef = new ArrayList<>();
         for (int i = 0; i < e.ID().size(); i++) {
-            type.add(e.typeReference(i).getText());
+
+            type.add(e.typeReference(i).type().getText());
+            if (e.typeReference(i).DEEPCOPY() == null) {
+                isRef.add(false);
+            }
+            else{
+                isRef.add(true);
+            }
             name.add(e.ID(i).getText());
         }
-        return new ParamList(type, name);
+        return new ParamList(type, name,isRef);
     }
 
     public Block toAST(MiniCppParser.BlockContext e) {
@@ -619,11 +627,7 @@ public class AST {
         public String name;
 
         public AttributeDeclaration(String type, String name) {
-            if (type.endsWith("&")) {
-                this.type = type.substring(0, type.length() - 1);
-            } else {
-                this.type = type;
-            }
+            this.type = type;
             this.name = name;
         }
 
@@ -651,11 +655,7 @@ public class AST {
         public MethodDefinition(
                 boolean virtual, String type, String methodName, ParamList paramList, Block block) {
             this.virtual = virtual;
-            if (type.endsWith("&")) {
-                this.type = type.substring(0, type.length() - 1);
-            } else {
-                this.type = type;
-            }
+            this.type = type;
             this.methodName = methodName;
             this.paramList = paramList;
             this.block = block;
@@ -707,16 +707,12 @@ public class AST {
 
         public ArrayList<String> type = new ArrayList<>();
         public ArrayList<String> name = new ArrayList<>();
+        public ArrayList<Boolean> isRef = new ArrayList<>();
 
-        public ParamList(ArrayList<String> type, ArrayList<String> name) {
-            for (String t : type) {
-                if (t.endsWith("&")) {
-                    this.type.add(t.substring(0, t.length() - 1));
-                } else {
-                    this.type.add(t);
-                }
-            }
+        public ParamList(ArrayList<String> type, ArrayList<String> name, ArrayList<Boolean> isRef) {
+            this.type = type;
             this.name = name;
+            this.isRef = isRef;
         }
 
         @Override
@@ -775,11 +771,7 @@ public class AST {
 
         public FunctionDeclaration(
                 String type, String functionName, ParamList paramList, Block block) {
-            if (type.endsWith("&")) {
-                this.type = type.substring(0, type.length() - 1);
-            } else {
-                this.type = type;
-            }
+            this.type = type;
             this.functionName = functionName;
             this.paramList = paramList;
             this.block = block;
@@ -808,24 +800,15 @@ public class AST {
         public IdChainElement varCall;
 
         public VariableDeclaration(String type, String varName, ASTToken expression) {
-            if (type.endsWith("&")) {
-                this.type = type.substring(0, type.length() - 1);
-            } else {
-                this.type = type;
-            }
+            this.type = type;
             this.varName = varName;
             this.expression = expression;
         }
 
         public VariableDeclaration(String type, String varName, IdChainElement varCall) {
+            this.type = type;
             this.varName = varName;
             this.varCall = varCall;
-            if (type.endsWith("&")) {
-                this.type = type.substring(0, type.length() - 1);
-            } else {
-                this.type = type;
-            }
-            this.varName = varName;
             this.deepcopy = true;
         }
 
@@ -1008,11 +991,7 @@ public class AST {
         String vorzeichen;
 
         public Literal(String type, String value, String vorzeichen) {
-            if (type.endsWith("&")) {
-                this.type = type.substring(0, type.length() - 1);
-            } else {
-                this.type = type;
-            }
+            this.type = type;
             this.value = value;
             this.vorzeichen = vorzeichen;
         }
@@ -1128,12 +1107,7 @@ public class AST {
         String type;
 
         public Type(String type) {
-
-            if (type.endsWith("&")) {
-                this.type = type.substring(0, type.length() - 1);
-            } else {
-                this.type = type;
-            }
+            this.type = type;
         }
 
         @Override

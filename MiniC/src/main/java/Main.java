@@ -12,7 +12,7 @@ public class Main {
     static void main(String... args) throws IOException, URISyntaxException {
 
         String path;
-        path = "pos/myTest.cpp";
+        // path = "pos/myTest.cpp";
 
         // path = "pos/GOLD01_basics.cpp";
         // path = "pos/GOLD02_ref_params.cpp";
@@ -47,13 +47,13 @@ public class Main {
         // path = "neg/N02_redeclaration.cpp";
         // path = "neg/N03_ref_noinit.cpp";
         // path = "neg/N04_ref_init_rvalue.cpp";
-        path = "neg/N05_assign_to_rvalue.cpp";
+        // path = "neg/N05_assign_to_rvalue.cpp";
         // path = "neg/N06_wrong_arity.cpp";
         // path = "neg/N07_void_return_with_value.cpp";
         // path = "neg/N08_unknown_member.cpp";
         // path = "neg/N09_method_not_in_static_type.cpp";
         // path = "neg/N10_polymorphie.cpp";
-        // path = "neg/N11_ambiguous_overload.cpp";
+        path = "neg/N11_ambiguous_overload.cpp";
         try (InputStream in = Main.class.getResourceAsStream(path)) {
             String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             MiniCppLexer lexer = new MiniCppLexer(CharStreams.fromString(text));
