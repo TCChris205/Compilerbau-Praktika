@@ -58,6 +58,35 @@ public class AST {
         return null;
     }
 
+    public ASTToken toASTStatement(MiniCppParser.StatementContext e) {
+        if (e == null) return null;
+        if (e.block() != null) {
+            return toAST(e.block());
+        }
+        if (e.functionDeclaration() != null) {
+            return toAST(e.functionDeclaration());
+        }
+        if (e.variableDeclaration() != null) {
+            return toAST(e.variableDeclaration());
+        }
+        if (e.returnStatement() != null) {
+            return toAST(e.returnStatement());
+        }
+        if (e.ifStatement() != null) {
+            return toAST(e.ifStatement());
+        }
+        if (e.whileLoop() != null) {
+            return toAST(e.whileLoop());
+        }
+        if (e.assignment() != null) {
+            return toAST(e.assignment());
+        }
+        if (e.logicalOr() != null) {
+            return toAST(e.logicalOr());
+        }
+        return null;
+    }
+
     public Start toAST(MiniCppParser.StartContext e) {
         if (e == null) return null;
         ArrayList<ASTToken> lines = new ArrayList<>();
@@ -153,16 +182,15 @@ public class AST {
         ArrayList<Boolean> isRef = new ArrayList<>();
         for (int i = 0; i < e.ID().size(); i++) {
 
-            type.add(e.typeReference(i).type().getText());
-            if (e.typeReference(i).DEEPCOPY() == null) {
-                isRef.add(false);
-            }
-            else{
-                isRef.add(true);
-            }
+            String baseType = e.typeReference(i).type().getText();
+            // Check if parameter is a reference (marked with &)
+            boolean hasRef = e.typeReference(i).DEEPCOPY() != null;
+            
+            type.add(baseType);
+            isRef.add(hasRef);
             name.add(e.ID(i).getText());
         }
-        return new ParamList(type, name,isRef);
+        return new ParamList(type, name, isRef);
     }
 
     public Block toAST(MiniCppParser.BlockContext e) {

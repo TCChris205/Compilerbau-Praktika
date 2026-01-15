@@ -3,7 +3,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SemanticAnalyzer {
-    private Scope globalScope;
+    public Scope globalScope;
     private Scope currentScope;
     private String currentClass;
 
@@ -55,20 +55,17 @@ public class SemanticAnalyzer {
         ArrayList<Scope.VariableInfo> parameters = new ArrayList<>();
         if (methodDef.paramList != null) {
             for (int i = 0; i < methodDef.paramList.name.size(); i++) {
-                parameters.add(new Scope.VariableInfo(
-                        methodDef.paramList.name.get(i),
-                        methodDef.paramList.type.get(i),
-                        null,
-                        methodDef.paramList.isRef.get(i)));
+                parameters.add(
+                        new Scope.VariableInfo(
+                                methodDef.paramList.name.get(i),
+                                methodDef.paramList.type.get(i),
+                                null,
+                                methodDef.paramList.isRef.get(i)));
             }
         }
 
         return new Scope.MethodInfo(
-                methodDef.methodName,
-                methodDef.type,
-                parameters,
-                methodDef.virtual,
-                definingClass);
+                methodDef.methodName, methodDef.type, parameters, methodDef.virtual, definingClass);
     }
 
     private Scope.MethodInfo buildMethodInfo(String name, ArrayList<String> paramTypes) {
@@ -85,11 +82,12 @@ public class SemanticAnalyzer {
         ArrayList<Scope.VariableInfo> parameters = new ArrayList<>();
         if (methodDef.paramList != null) {
             for (int i = 0; i < methodDef.paramList.name.size(); i++) {
-                parameters.add(new Scope.VariableInfo(
-                        methodDef.paramList.name.get(i),
-                        methodDef.paramList.type.get(i),
-                        null,
-                        methodDef.paramList.isRef.get(i)));
+                parameters.add(
+                        new Scope.VariableInfo(
+                                methodDef.paramList.name.get(i),
+                                methodDef.paramList.type.get(i),
+                                null,
+                                methodDef.paramList.isRef.get(i)));
             }
         }
 
@@ -101,11 +99,12 @@ public class SemanticAnalyzer {
         ArrayList<Scope.VariableInfo> parameters = new ArrayList<>();
         if (ctor.paramList != null) {
             for (int i = 0; i < ctor.paramList.name.size(); i++) {
-                parameters.add(new Scope.VariableInfo(
-                        ctor.paramList.name.get(i),
-                        ctor.paramList.type.get(i),
-                        null,
-                        ctor.paramList.isRef.get(i)));
+                parameters.add(
+                        new Scope.VariableInfo(
+                                ctor.paramList.name.get(i),
+                                ctor.paramList.type.get(i),
+                                null,
+                                ctor.paramList.isRef.get(i)));
             }
         }
 
@@ -159,20 +158,14 @@ public class SemanticAnalyzer {
         if (counter == 0) {
             ArrayList<Scope.VariableInfo> emptyParams = new ArrayList<>();
             Scope.MethodInfo constructorInfo =
-                    new Scope.MethodInfo(
-                            className,
-                            className,
-                            emptyParams,
-                            false,
-                            className);
+                    new Scope.MethodInfo(className, className, emptyParams, false, className);
             currentScope.declareMethod(constructorInfo.getSignature(), constructorInfo);
         }
 
         ArrayList<Scope.VariableInfo> copyParams = new ArrayList<>();
         copyParams.add(new Scope.VariableInfo("value", className, null, false));
         Scope.MethodInfo constructorInfo =
-                new Scope.MethodInfo(
-                        className, className, copyParams, false, className);
+                new Scope.MethodInfo(className, className, copyParams, false, className);
         if (globalScope.getMethod(constructorInfo.getSignature()) == null) {
             globalScope.declareMethod(constructorInfo.getSignature(), constructorInfo);
         }
@@ -580,7 +573,7 @@ public class SemanticAnalyzer {
 
     private String analyzeFunctionCall(AST.FunctionCall functionCall) {
         ArrayList<String> args = analyzeArgs(functionCall.args);
-        
+
         // Check if arguments are lvalues or rvalues for reference binding
         ArrayList<Boolean> isLvalue = new ArrayList<>();
         if (functionCall.args != null && functionCall.args.expressions != null) {
@@ -592,11 +585,15 @@ public class SemanticAnalyzer {
 
         // Try to find a matching function (considering reference parameters)
         Scope.MethodInfo methodInfo = findMatchingFunction(functionCall.name, args, isLvalue);
-        
+
         if (methodInfo == null) {
             printCurrentScope();
             throw new SemanticException(
-                    "Can not find function " + functionCall.name + "/" + String.join(",", args) + ",");
+                    "Can not find function "
+                            + functionCall.name
+                            + "/"
+                            + String.join(",", args)
+                            + ",");
         }
 
         // Check for ambiguous overloads (e.g., f(int) and f(int&) both match)
@@ -719,7 +716,7 @@ public class SemanticAnalyzer {
     private String analyzeFunctionCallOnClass(
             AST.FunctionCall functionCall, Scope.ClassInfo classInfo) {
         ArrayList<String> args = analyzeArgs(functionCall.args);
-        
+
         // Track which arguments are lvalues (only variables, not function results)
         ArrayList<Boolean> isLvalue = new ArrayList<>();
         if (functionCall.args != null && functionCall.args.expressions != null) {
@@ -730,7 +727,8 @@ public class SemanticAnalyzer {
         }
 
         // Try to find matching method using smart matching (exact first, then references)
-        Scope.MethodInfo methodInfo = findMethodInClass(functionCall.name, args, isLvalue, classInfo);
+        Scope.MethodInfo methodInfo =
+                findMethodInClass(functionCall.name, args, isLvalue, classInfo);
 
         if (methodInfo == null) {
             String sig = buildMethodInfo(functionCall.name, args).getSignature();
@@ -932,7 +930,8 @@ public class SemanticAnalyzer {
         return findVariableInAncestors(classInfo.parent, variableName);
     }
 
-    private Scope.MethodInfo findMatchingFunction(String functionName, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
+    private Scope.MethodInfo findMatchingFunction(
+            String functionName, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
         // Try exact match first, then reference variants
         Scope.MethodInfo exactMatch = null;
         Scope.MethodInfo refMatch = null;
@@ -966,7 +965,8 @@ public class SemanticAnalyzer {
         return exactMatch != null ? exactMatch : refMatch;
     }
 
-    private boolean isExactMatch(Scope.MethodInfo method, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
+    private boolean isExactMatch(
+            Scope.MethodInfo method, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
         if (method.parameters.size() != argTypes.size()) {
             return false;
         }
@@ -985,15 +985,17 @@ public class SemanticAnalyzer {
             // - Non-ref param always accepts the argument (whether lvalue or rvalue)
             // - Ref param requires argument to be lvalue
             if (param.isReference && !argIsLvalue) {
-                return false;  // rvalue cannot bind to non-const reference
+                return false; // rvalue cannot bind to non-const reference
             }
         }
         return true;
     }
 
-
-
-    private Scope.MethodInfo findMethodInClass(String methodName, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue, Scope.ClassInfo classInfo) {
+    private Scope.MethodInfo findMethodInClass(
+            String methodName,
+            ArrayList<String> argTypes,
+            ArrayList<Boolean> isLvalue,
+            Scope.ClassInfo classInfo) {
         // First try exact match in this class
         for (Scope.MethodInfo method : classInfo.methods.values()) {
             if (!method.name.equals(methodName)) {
@@ -1003,7 +1005,7 @@ public class SemanticAnalyzer {
                 return method;
             }
         }
-        
+
         // Then try exact match in ancestors
         if (classInfo.parent != null) {
             Scope.ClassInfo parentClass = globalScope.getClass(classInfo.parent);
@@ -1011,11 +1013,12 @@ public class SemanticAnalyzer {
                 return findMethodInClass(methodName, argTypes, isLvalue, parentClass);
             }
         }
-        
+
         return null;
     }
 
-    private void checkAmbiguousOverload(String functionName, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
+    private void checkAmbiguousOverload(
+            String functionName, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
         // Check for ambiguity - multiple methods can match the same arguments
         boolean hasExactMatch = false;
         List<Scope.MethodInfo> exactMatches = new ArrayList<>();
@@ -1062,7 +1065,8 @@ public class SemanticAnalyzer {
         }
     }
 
-    private boolean canMatchFunction(Scope.MethodInfo method, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
+    private boolean canMatchFunction(
+            Scope.MethodInfo method, ArrayList<String> argTypes, ArrayList<Boolean> isLvalue) {
         return isExactMatch(method, argTypes, isLvalue);
     }
 

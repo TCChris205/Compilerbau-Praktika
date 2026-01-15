@@ -54,7 +54,7 @@ public class TestRunner {
         int failedPositive = 0;
         int passedNegative = 0;
         int failedNegative = 0;
-        
+
         List<String> failedPositiveTests = new java.util.ArrayList<>();
         List<String> failedNegativeTests = new java.util.ArrayList<>();
 
@@ -106,14 +106,14 @@ public class TestRunner {
                         + " passed, "
                         + (failedPositive + failedNegative)
                         + " failed");
-        
+
         if (!failedPositiveTests.isEmpty()) {
             System.out.println("\n=== FAILED POSITIVE TESTS ===");
             for (String test : failedPositiveTests) {
                 System.out.println("  - " + test);
             }
         }
-        
+
         if (!failedNegativeTests.isEmpty()) {
             System.out.println("\n=== FAILED NEGATIVE TESTS ===");
             for (String test : failedNegativeTests) {

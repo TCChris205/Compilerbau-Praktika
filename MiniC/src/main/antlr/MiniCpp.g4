@@ -5,7 +5,7 @@ grammar MiniCpp;
 // --------------------------
 
 start
-    : line+
+    : line*
     ;
 
 line

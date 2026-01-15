@@ -7,6 +7,7 @@ public class Scope {
     public Map<String, VariableInfo> variables = new HashMap<>();
     public Map<String, MethodInfo> methods = new HashMap<>();
     public Map<String, ClassInfo> classes = new HashMap<>();
+    public Map<String, Object> runtimeValues = new HashMap<>(); // For interpreter runtime values
 
     public static class VariableInfo {
         String name;

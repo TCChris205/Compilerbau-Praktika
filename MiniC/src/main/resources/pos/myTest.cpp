@@ -1,9 +1,13 @@
-class A { public: int x; };
+class Base {
+public:
+  int x;
+  void g() { x = x + 2; }
+  void x() { x = x + x; }
+};
 
-int main() {
-    A a;
-    int y;
-    a.y = 1; // Fehler: Feld existiert nicht
-
-    return 0;
+int main(){
+  Base b;
+  b.g();
+  b.x();
+  print_int(b.x);
 }
