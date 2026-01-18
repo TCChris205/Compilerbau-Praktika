@@ -209,18 +209,13 @@ public class Interpreter {
             for (int i = 0; i < paramList.name.size(); i++) {
                 String type = paramList.type.get(i);
                 boolean isRef = paramList.isRef.get(i);
-                
+
                 // Strip "&" from type since we store it separately in isRef
                 if (type.endsWith("&")) {
                     type = type.substring(0, type.length() - 1);
                 }
-                
-                params.add(
-                        new Scope.VariableInfo(
-                                paramList.name.get(i),
-                                type,
-                                null,
-                                isRef));
+
+                params.add(new Scope.VariableInfo(paramList.name.get(i), type, null, isRef));
             }
         }
         return params;
@@ -348,15 +343,17 @@ public class Interpreter {
             }
         } else if (varDecl.expression != null) {
             initialValue = evaluateExpression(varDecl.expression);
-            
+
             // Handle class instance slicing for non-reference declarations
-            if (initialValue != null && initialValue.value instanceof ClassInstance rhsInstance && !isRef) {
+            if (initialValue != null
+                    && initialValue.value instanceof ClassInstance rhsInstance
+                    && !isRef) {
                 // If initializing a class variable from a different class type, slice it
                 if (!actualType.equals(rhsInstance.staticType)) {
                     Scope.ClassInfo targetClass = globalScope.getClass(actualType);
                     if (targetClass != null) {
                         ClassInstance sliced = new ClassInstance(actualType, actualType, this);
-                        
+
                         // Collect all fields including inherited ones
                         Set<String> allFields = new HashSet<>();
                         String classToWalk = actualType;
@@ -369,7 +366,7 @@ public class Interpreter {
                                 break;
                             }
                         }
-                        
+
                         // Only copy fields that exist in the target class hierarchy
                         for (String fieldName : allFields) {
                             if (rhsInstance.fields.containsKey(fieldName)) {
@@ -381,7 +378,8 @@ public class Interpreter {
                                 Scope.VariableInfo fieldInfo = null;
                                 while (classToWalk != null && fieldInfo == null) {
                                     Scope.ClassInfo walkInfo = globalScope.getClass(classToWalk);
-                                    if (walkInfo != null && walkInfo.attributes.containsKey(fieldName)) {
+                                    if (walkInfo != null
+                                            && walkInfo.attributes.containsKey(fieldName)) {
                                         fieldInfo = walkInfo.attributes.get(fieldName);
                                         break;
                                     }
@@ -396,7 +394,7 @@ public class Interpreter {
                     }
                 }
             }
-            
+
             // If this is a reference type, try to bind to the referenced variable
             if (isRef && varDecl.expression instanceof AST.VariableCall varCall) {
                 referencedVar = findVariable(varCall.name);
@@ -452,7 +450,8 @@ public class Interpreter {
                     while (classToWalk != null) {
                         Scope.ClassInfo walkInfo = globalScope.getClass(classToWalk);
                         if (walkInfo != null) {
-                            for (Map.Entry<String, Scope.VariableInfo> field : walkInfo.attributes.entrySet()) {
+                            for (Map.Entry<String, Scope.VariableInfo> field :
+                                    walkInfo.attributes.entrySet()) {
                                 if (!instance.fields.containsKey(field.getKey())) {
                                     String fieldType = field.getValue().type.replace("&", "");
                                     Value defaultVal = null;
@@ -470,7 +469,8 @@ public class Interpreter {
                                             defaultVal = new Value("string", "");
                                             break;
                                         default:
-                                            // For class fields, recursively get their defaults (which initializes their fields)
+                                            // For class fields, recursively get their defaults
+                                            // (which initializes their fields)
                                             defaultVal = getDefaultValue(fieldType);
                                             break;
                                     }
@@ -502,22 +502,29 @@ public class Interpreter {
             try {
                 // Make fields accessible
                 for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
-                    Variable fieldVar = new Variable(field.getKey(), null, field.getValue(), false, null);
+                    Variable fieldVar =
+                            new Variable(field.getKey(), null, field.getValue(), false, null);
                     currentScope.runtimeValues.put(field.getKey(), fieldVar);
                 }
-                
+
                 // Set up 'this' in the scope
-                Variable thisVar = new Variable("this", instance.className, new Value(instance.className, instance), false, null);
+                Variable thisVar =
+                        new Variable(
+                                "this",
+                                instance.className,
+                                new Value(instance.className, instance),
+                                false,
+                                null);
                 currentScope.runtimeValues.put("this", thisVar);
-                
+
                 // If this class has a parent, recursively call parent constructors up the chain
                 if (classInfo != null && classInfo.parent != null) {
                     executeParentConstructorChain(instance, classInfo.parent, currentScope);
                 }
-                
+
                 AST.Block body = constructorBodies.get(instance.className + ":" + ctorSig);
                 executeStatement(body);
-                
+
                 // Sync modified fields back to the instance
                 syncFieldsToInstance(instance, constructorScope);
             } catch (ReturnValue rv) {
@@ -625,7 +632,7 @@ public class Interpreter {
         // Process operations with short-circuit evaluation for && and ||
         for (int i = 0; i < op.operations.size(); i++) {
             String operator = op.operations.get(i);
-            
+
             // Short-circuit evaluation for &&
             if ("&&".equals(operator)) {
                 if (!isTruthy(result)) {
@@ -643,7 +650,7 @@ public class Interpreter {
                 result = new Value("bool", isTruthy(right));
                 continue;
             }
-            
+
             // Short-circuit evaluation for ||
             if ("||".equals(operator)) {
                 if (isTruthy(result)) {
@@ -661,7 +668,7 @@ public class Interpreter {
                 result = new Value("bool", isTruthy(right));
                 continue;
             }
-            
+
             // For non-short-circuit operators, evaluate right side normally
             AST.ASTToken rightElem = op.elements.get(i + 1);
             Value right;
@@ -835,46 +842,56 @@ public class Interpreter {
 
         // Search in the class hierarchy for the method
         Scope.MethodInfo methodInfo = null;
-        String methodFoundInClass = null;  // Track which class the method was found in
-        boolean justResetForVirtual = false;  // Flag to prevent parent walk on iteration after reset
-        
-        // Use declared type for method lookup if available (for static polymorphism), otherwise use instance's static type
-        String classToSearch = (objValue.declaredType != null) ? objValue.declaredType : instance.staticType;
-        
+        String methodFoundInClass = null; // Track which class the method was found in
+        boolean justResetForVirtual = false; // Flag to prevent parent walk on iteration after reset
+
+        // Use declared type for method lookup if available (for static polymorphism), otherwise use
+        // instance's static type
+        String classToSearch =
+                (objValue.declaredType != null) ? objValue.declaredType : instance.staticType;
+
         while (classToSearch != null && methodInfo == null) {
             Scope.ClassInfo classInfo = globalScope.getClass(classToSearch);
             if (classInfo != null) {
                 // Search in this class's methods
                 for (Scope.MethodInfo method : classInfo.methods.values()) {
-                    if (method.name.equals(funcCall.name) && method.parameters.size() == args.size()) {
+                    if (method.name.equals(funcCall.name)
+                            && method.parameters.size() == args.size()) {
                         // Check for match
                         boolean matches = true;
                         for (int i = 0; i < args.size(); i++) {
                             Scope.VariableInfo param = method.parameters.get(i);
                             Value arg = args.get(i);
                             AST.ASTToken argExpr = argExprs.get(i);
-                            
+
                             String paramBaseType = param.type.replace("&", "");
                             if (!paramBaseType.equals(arg.type)) {
                                 matches = false;
                                 break;
                             }
-                            
+
                             // For reference parameters, check if argument can bind
                             if (param.isReference && !(argExpr instanceof AST.VariableCall)) {
                                 matches = false;
                                 break;
                             }
                         }
-                        
+
                         if (matches) {
                             methodInfo = method;
-                            methodFoundInClass = classToSearch;  // Remember which class the method was found in
-                            
-                            // If this method is virtual and we have a different declared type than actual type,
-                            // AND we haven't already reset to the actual type, restart search from the actual instance type
-                            if (method.isVirtual && objValue.declaredType != null && !objValue.declaredType.equals(instance.staticType) && !classToSearch.equals(instance.staticType)) {
-                                // Reset to search from actual instance type for virtual method overrides
+                            methodFoundInClass =
+                                    classToSearch; // Remember which class the method was found in
+
+                            // If this method is virtual and we have a different declared type than
+                            // actual type,
+                            // AND we haven't already reset to the actual type, restart search from
+                            // the actual instance type
+                            if (method.isVirtual
+                                    && objValue.declaredType != null
+                                    && !objValue.declaredType.equals(instance.staticType)
+                                    && !classToSearch.equals(instance.staticType)) {
+                                // Reset to search from actual instance type for virtual method
+                                // overrides
                                 methodInfo = null;
                                 methodFoundInClass = null;
                                 classToSearch = instance.staticType;
@@ -886,7 +903,7 @@ public class Interpreter {
                     }
                 }
             }
-            
+
             // Move to parent class (but not if we just reset for virtual method)
             if (methodInfo == null && !justResetForVirtual) {
                 classToSearch = classInfo != null ? classInfo.parent : null;
@@ -894,7 +911,7 @@ public class Interpreter {
                 justResetForVirtual = false; // Reset flag for next iteration
             }
         }
-        
+
         if (methodInfo != null) {
             // Build the signature to look up the method body
             StringBuilder sig = new StringBuilder(methodInfo.name).append("/");
@@ -905,13 +922,15 @@ public class Interpreter {
                 }
                 sig.append(",");
             }
-            
-            // For static polymorphism, look up the method body in the class where the method signature was found
+
+            // For static polymorphism, look up the method body in the class where the method
+            // signature was found
             // not in the instance's actual class
             String key = methodFoundInClass + ":" + sig.toString();
             AST.Block body = methodBodies.get(key);
             if (body != null) {
-                return callMethodWithBody(instance, methodInfo.name, args, argExprs, methodInfo, body);
+                return callMethodWithBody(
+                        instance, methodInfo.name, args, argExprs, methodInfo, body);
             }
         }
 
@@ -919,8 +938,13 @@ public class Interpreter {
     }
 
     private Value callMethodWithBody(
-            ClassInstance instance, String methodName, ArrayList<Value> args, ArrayList<AST.ASTToken> argExprs, Scope.MethodInfo methodInfo, AST.Block body) {
-        Scope methodScope = new Scope(currentScope);  // Save the method scope
+            ClassInstance instance,
+            String methodName,
+            ArrayList<Value> args,
+            ArrayList<AST.ASTToken> argExprs,
+            Scope.MethodInfo methodInfo,
+            AST.Block body) {
+        Scope methodScope = new Scope(currentScope); // Save the method scope
         Scope prevScope = currentScope;
         String prevClass = currentClass;
         currentScope = methodScope;
@@ -935,18 +959,25 @@ public class Interpreter {
                         field.getKey(), new Scope.VariableInfo(field.getKey(), null, null, false));
                 currentScope.runtimeValues.put(field.getKey(), fieldVar);
             }
-            
+
             // Set up 'this' variable
-            Variable thisVar = new Variable("this", instance.className, new Value(instance.className, instance), false, null);
+            Variable thisVar =
+                    new Variable(
+                            "this",
+                            instance.className,
+                            new Value(instance.className, instance),
+                            false,
+                            null);
             currentScope.runtimeValues.put("this", thisVar);
-            currentScope.variables.put("this", new Scope.VariableInfo("this", instance.className, null, false));
-            
+            currentScope.variables.put(
+                    "this", new Scope.VariableInfo("this", instance.className, null, false));
+
             // Bind method parameters
             for (int i = 0; i < methodInfo.parameters.size(); i++) {
                 Scope.VariableInfo param = methodInfo.parameters.get(i);
                 Value argVal = args.get(i);
                 AST.ASTToken argExpr = (i < argExprs.size()) ? argExprs.get(i) : null;
-                
+
                 Variable var;
                 if (param.isReference && argExpr instanceof AST.VariableCall varCall) {
                     // For reference parameters, bind to the original variable in caller's scope
@@ -960,16 +991,18 @@ public class Interpreter {
                     // For non-reference parameters, create a new variable with the value
                     var = new Variable(param.name, param.type, argVal, false, null);
                 }
-                
-                currentScope.variables.put(param.name, new Scope.VariableInfo(param.name, param.type, null, param.isReference));
+
+                currentScope.variables.put(
+                        param.name,
+                        new Scope.VariableInfo(param.name, param.type, null, param.isReference));
                 currentScope.runtimeValues.put(param.name, var);
             }
 
             executeStatement(body);
-            
+
             // Sync modified fields back to the instance from methodScope
             syncFieldsToInstance(instance, methodScope);
-            
+
             return new Value("void", null);
         } catch (ReturnValue rv) {
             // Sync modified fields back to the instance even on return, using methodScope
@@ -980,7 +1013,7 @@ public class Interpreter {
             currentClass = prevClass;
         }
     }
-    
+
     private void syncFieldsToInstance(ClassInstance instance, Scope methodScope) {
         for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
             String fieldName = field.getKey();
@@ -991,54 +1024,10 @@ public class Interpreter {
             }
         }
     }
-    
-    // Keep old version for backwards compatibility
-    private Value callMethodWithBody(
-            ClassInstance instance, String methodName, ArrayList<Value> args, AST.Block body) {
-        Scope prevScope = currentScope;
-        String prevClass = currentClass;
-        currentScope = new Scope(currentScope);
-        currentClass = instance.className;
 
-        try {
-            // Make fields accessible
-            for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
-                Variable fieldVar =
-                        new Variable(field.getKey(), null, field.getValue(), false, null);
-                currentScope.variables.put(
-                        field.getKey(), new Scope.VariableInfo(field.getKey(), null, null, false));
-                currentScope.runtimeValues.put(field.getKey(), fieldVar);
-            }
 
-            executeStatement(body);
-            
-            // Sync modified fields back to the instance
-            for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
-                String fieldName = field.getKey();
-                if (currentScope.runtimeValues.containsKey(fieldName)) {
-                    Variable modifiedField = (Variable) currentScope.runtimeValues.get(fieldName);
-                    instance.fields.put(fieldName, modifiedField.getValue());
-                }
-            }
-            
-            return new Value("void", null);
-        } catch (ReturnValue rv) {
-            // Sync modified fields back to the instance even on return
-            for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
-                String fieldName = field.getKey();
-                if (currentScope.runtimeValues.containsKey(fieldName)) {
-                    Variable modifiedField = (Variable) currentScope.runtimeValues.get(fieldName);
-                    instance.fields.put(fieldName, modifiedField.getValue());
-                }
-            }
-            return rv.value;
-        } finally {
-            currentScope = prevScope;
-            currentClass = prevClass;
-        }
-    }
-
-    private void executeParentConstructorChain(ClassInstance instance, String parentClassName, Scope currentScope) {
+    private void executeParentConstructorChain(
+            ClassInstance instance, String parentClassName, Scope currentScope) {
         // Recursively execute parent constructors up the inheritance chain
         Scope.ClassInfo parentInfo = globalScope.getClass(parentClassName);
         if (parentInfo != null) {
@@ -1046,23 +1035,25 @@ public class Interpreter {
             if (parentInfo.parent != null) {
                 executeParentConstructorChain(instance, parentInfo.parent, currentScope);
             }
-            
+
             // Then execute this parent's default constructor if it exists
             String parentCtorSig = parentClassName + "/";
             if (constructorBodies.containsKey(parentClassName + ":" + parentCtorSig)) {
                 AST.Block parentBody = constructorBodies.get(parentClassName + ":" + parentCtorSig);
                 executeStatement(parentBody);
-                
+
                 // Update field variables from their modified values
                 for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
                     if (currentScope.runtimeValues.containsKey(field.getKey())) {
-                        Variable fieldVar = (Variable) currentScope.runtimeValues.get(field.getKey());
+                        Variable fieldVar =
+                                (Variable) currentScope.runtimeValues.get(field.getKey());
                         instance.fields.put(field.getKey(), fieldVar.getValue());
                     }
                 }
                 // Refresh field variables after parent constructor
                 for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
-                    Variable fieldVar = new Variable(field.getKey(), null, field.getValue(), false, null);
+                    Variable fieldVar =
+                            new Variable(field.getKey(), null, field.getValue(), false, null);
                     currentScope.runtimeValues.put(field.getKey(), fieldVar);
                 }
             }
@@ -1092,7 +1083,7 @@ public class Interpreter {
         if (classInfo != null) {
             // This is a constructor call
             ClassInstance instance = new ClassInstance(funcCall.name, funcCall.name, this);
-            
+
             // Initialize fields to default values - including inherited fields
             // Walk up the inheritance chain and collect all fields
             String classToWalk = funcCall.name;
@@ -1100,7 +1091,8 @@ public class Interpreter {
                 Scope.ClassInfo walkInfo = globalScope.getClass(classToWalk);
                 if (walkInfo != null) {
                     // Add fields from this class (in inheritance order, base first)
-                    for (Map.Entry<String, Scope.VariableInfo> field : walkInfo.attributes.entrySet()) {
+                    for (Map.Entry<String, Scope.VariableInfo> field :
+                            walkInfo.attributes.entrySet()) {
                         if (!instance.fields.containsKey(field.getKey())) {
                             Value defaultVal = getDefaultValue(field.getValue().type);
                             instance.fields.put(field.getKey(), defaultVal);
@@ -1111,16 +1103,19 @@ public class Interpreter {
                     break;
                 }
             }
-            
+
             // Build constructor signature
             String ctorSig = funcCall.name + "/";
             for (Value arg : args) {
                 ctorSig += arg.type + ",";
             }
-            
+
             // Check if this is a copy constructor (single argument of same class type)
-            boolean isCopyConstructor = args.size() == 1 && args.get(0).value instanceof ClassInstance && args.get(0).type.equals(funcCall.name);
-            
+            boolean isCopyConstructor =
+                    args.size() == 1
+                            && args.get(0).value instanceof ClassInstance
+                            && args.get(0).type.equals(funcCall.name);
+
             if (isCopyConstructor) {
                 // Default copy constructor: copy all fields from the argument
                 ClassInstance sourceInstance = (ClassInstance) args.get(0).value;
@@ -1136,22 +1131,29 @@ public class Interpreter {
                 try {
                     // Make fields accessible (includes inherited fields)
                     for (Map.Entry<String, Value> field : instance.fields.entrySet()) {
-                        Variable fieldVar = new Variable(field.getKey(), null, field.getValue(), false, null);
+                        Variable fieldVar =
+                                new Variable(field.getKey(), null, field.getValue(), false, null);
                         currentScope.runtimeValues.put(field.getKey(), fieldVar);
                     }
-                    
+
                     // Set up 'this' in the scope
-                    Variable thisVar = new Variable("this", funcCall.name, new Value(funcCall.name, instance), false, null);
+                    Variable thisVar =
+                            new Variable(
+                                    "this",
+                                    funcCall.name,
+                                    new Value(funcCall.name, instance),
+                                    false,
+                                    null);
                     currentScope.runtimeValues.put("this", thisVar);
-                    
+
                     // If this class has a parent, recursively call parent constructors up the chain
                     if (classInfo != null && classInfo.parent != null) {
                         executeParentConstructorChain(instance, classInfo.parent, currentScope);
                     }
-                    
+
                     // Get constructor body
                     AST.Block body = constructorBodies.get(funcCall.name + ":" + ctorSig);
-                    
+
                     // Get parameter names from the method info
                     Scope.MethodInfo ctorInfo = globalScope.getMethod(ctorSig);
                     if (ctorInfo != null && ctorInfo.parameters != null) {
@@ -1159,13 +1161,14 @@ public class Interpreter {
                         for (int i = 0; i < ctorInfo.parameters.size(); i++) {
                             Scope.VariableInfo param = ctorInfo.parameters.get(i);
                             Value argVal = args.get(i);
-                            Variable var = new Variable(param.name, param.type, argVal, false, null);
+                            Variable var =
+                                    new Variable(param.name, param.type, argVal, false, null);
                             currentScope.runtimeValues.put(param.name, var);
                         }
                     }
-                    
+
                     executeStatement(body);
-                    
+
                     // Sync modified fields back to the instance
                     syncFieldsToInstance(instance, constructorScope);
                 } catch (ReturnValue rv) {
@@ -1176,7 +1179,7 @@ public class Interpreter {
                     currentClass = prevClass;
                 }
             }
-            
+
             return new Value(funcCall.name, instance);
         }
 
@@ -1237,7 +1240,12 @@ public class Interpreter {
         return false;
     }
 
-    private Value callFunctionWithBody(String funcName, ArrayList<Value> args, ArrayList<AST.ASTToken> argExprs, Scope.MethodInfo methodInfo, AST.Block body) {
+    private Value callFunctionWithBody(
+            String funcName,
+            ArrayList<Value> args,
+            ArrayList<AST.ASTToken> argExprs,
+            Scope.MethodInfo methodInfo,
+            AST.Block body) {
         Scope prevScope = currentScope;
         currentScope = new Scope(currentScope);
 
@@ -1247,7 +1255,7 @@ public class Interpreter {
                 Scope.VariableInfo param = methodInfo.parameters.get(i);
                 Value argVal = args.get(i);
                 AST.ASTToken argExpr = (i < argExprs.size()) ? argExprs.get(i) : null;
-                
+
                 Variable var;
                 if (param.isReference && argExpr instanceof AST.VariableCall varCall) {
                     // For reference parameters, bind to the original variable in caller's scope
@@ -1261,12 +1269,11 @@ public class Interpreter {
                     // For non-reference parameters, create a new variable with the value
                     var = new Variable(param.name, param.type, argVal, false, null);
                 }
-                
+
                 // Store both VariableInfo and the actual Variable
                 currentScope.variables.put(
                         param.name,
-                        new Scope.VariableInfo(
-                                param.name, param.type, null, param.isReference));
+                        new Scope.VariableInfo(param.name, param.type, null, param.isReference));
                 currentScope.runtimeValues.put(param.name, var);
             }
 
@@ -1290,34 +1297,35 @@ public class Interpreter {
         return null;
     }
 
-    private Scope.MethodInfo findMethodInfo(String funcName, ArrayList<Value> args, ArrayList<AST.ASTToken> argExprs) {
+    private Scope.MethodInfo findMethodInfo(
+            String funcName, ArrayList<Value> args, ArrayList<AST.ASTToken> argExprs) {
         // Find matching function by name and arity
         Scope.MethodInfo bestMatch = null;
         int matchScore = -1; // Higher is better
-        
+
         for (Scope.MethodInfo method : globalScope.methods.values()) {
             // Check if name matches and arity matches
             if (!method.name.equals(funcName) || method.parameters.size() != args.size()) {
                 continue;
             }
-            
+
             // Check if argument types match parameter types
             boolean canMatch = true;
             int currentScore = 100; // Start with base score
-            
+
             for (int i = 0; i < args.size(); i++) {
                 Scope.VariableInfo param = method.parameters.get(i);
                 Value arg = args.get(i);
                 AST.ASTToken argExpr = (i < argExprs.size()) ? argExprs.get(i) : null;
-                
+
                 String paramBaseType = param.type.replace("&", "");
-                
+
                 // Check if base types match
                 if (!paramBaseType.equals(arg.type)) {
                     canMatch = false;
                     break;
                 }
-                
+
                 // For reference parameters, check if argument can bind to reference
                 if (param.isReference) {
                     // Reference parameters require that the argument is a variable (not an rvalue)
@@ -1334,13 +1342,13 @@ public class Interpreter {
                     currentScore += 1;
                 }
             }
-            
+
             if (canMatch && currentScore > matchScore) {
                 matchScore = currentScore;
                 bestMatch = method;
             }
         }
-        
+
         return bestMatch;
     }
 
@@ -1365,7 +1373,7 @@ public class Interpreter {
             } else {
                 // Simple variable assignment: var = value
                 Variable var = findVariable(varCall.name);
-                
+
                 // If variable not found and we're in a method context, check if it's a field
                 if (var == null && currentClass != null) {
                     // Search up the inheritance chain for the field
@@ -1387,11 +1395,11 @@ public class Interpreter {
                         classToSearch = classInfo != null ? classInfo.parent : null;
                     }
                 }
-                
+
                 if (var == null) {
                     throw new RuntimeException("Variable not found: " + varCall.name);
                 }
-                
+
                 // Handle class instance assignment: deep copy unless assigning to reference
                 if (rhs.value instanceof ClassInstance rhsInstance && var.type != null) {
                     if (!var.type.equals(rhsInstance.staticType)) {
@@ -1402,7 +1410,8 @@ public class Interpreter {
                             // Only copy fields that exist in the target class
                             for (String fieldName : targetClass.attributes.keySet()) {
                                 if (rhsInstance.fields.containsKey(fieldName)) {
-                                    sliced.fields.put(fieldName, rhsInstance.fields.get(fieldName).copy());
+                                    sliced.fields.put(
+                                            fieldName, rhsInstance.fields.get(fieldName).copy());
                                 }
                             }
                             rhs = new Value(var.type, sliced);
@@ -1412,9 +1421,10 @@ public class Interpreter {
                         rhs = new Value(var.type, rhsInstance.deepCopy());
                     }
                 }
-                
+
                 var.setValue(rhs);
-                // Update in the correct scope's runtime map - for fields, update in all parent scopes
+                // Update in the correct scope's runtime map - for fields, update in all parent
+                // scopes
                 Scope scope = currentScope;
                 while (scope != null) {
                     if (scope.runtimeValues.containsKey(varCall.name)) {
@@ -1509,4 +1519,3 @@ public class Interpreter {
         return this.currentScope;
     }
 }
-
