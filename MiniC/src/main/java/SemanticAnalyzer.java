@@ -7,6 +7,8 @@ public class SemanticAnalyzer {
     private Scope currentScope;
     private String currentClass;
 
+    // =============================================================================================================================
+    // =============================================================================================================================
     public SemanticAnalyzer() {
         globalScope = new Scope(null);
         currentScope = globalScope;
@@ -112,6 +114,8 @@ public class SemanticAnalyzer {
                 ctor.className, ctor.className, parameters, false, ctor.className);
     }
 
+    // =============================================================================================================================
+    // =============================================================================================================================
     public void analyze(AST.Start start) {
 
         collectTree(start);
@@ -181,6 +185,8 @@ public class SemanticAnalyzer {
         currentScope.declareMethod(methodInfo.getSignature(), methodInfo);
     }
 
+    // =============================================================================================================================
+    // =============================================================================================================================
     public void analyzeTree(AST.Start start) {
         for (AST.ASTToken line : start.lines) {
             if (line instanceof AST.ClassDeclaration classDecl) {
@@ -369,7 +375,10 @@ public class SemanticAnalyzer {
         }
     }
 
+    // =============================================================================================================================
+    // =============================================================================================================================
     private void analyzeReturn(AST.ReturnStatement returnStatement, String returnType) {
+
         if (returnType == null) {
             throw new SemanticException("Unexpected Return Call:" + returnStatement);
         }
@@ -894,6 +903,8 @@ public class SemanticAnalyzer {
         return isSubclassOf(classInfo.parent, targetClass);
     }
 
+    // =============================================================================================================================
+    // =============================================================================================================================
     private Scope.MethodInfo findMethodInAncestors(String className, String methodSignature) {
         if (className == null) {
             return null;

@@ -58,6 +58,8 @@ public class AST {
         return null;
     }
 
+    // =============================================================================================================================
+    // =============================================================================================================================
     public ASTToken toASTStatement(MiniCppParser.StatementContext e) {
         if (e == null) return null;
         if (e.block() != null) {
@@ -185,7 +187,7 @@ public class AST {
             String baseType = e.typeReference(i).type().getText();
             // Check if parameter is a reference (marked with &)
             boolean hasRef = e.typeReference(i).DEEPCOPY() != null;
-            
+
             type.add(baseType);
             isRef.add(hasRef);
             name.add(e.ID(i).getText());
@@ -244,6 +246,8 @@ public class AST {
         String varName = e.ID(0).getText();
         if (deepcopy) {
             VariableCall call = new VariableCall(e.ID(1).getText(), null);
+            // =============================================================================================================================
+            // =============================================================================================================================
             if (e.idChain() != null) {
                 IdChainElement start = (IdChainElement) toAST(e.idChain());
                 IdChainElement i = start;
@@ -948,6 +952,8 @@ public class AST {
         }
     }
 
+    // =============================================================================================================================
+    // =============================================================================================================================
     public class Operation extends ASTToken {
 
         public ArrayList<String> operations;

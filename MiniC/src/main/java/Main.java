@@ -18,18 +18,14 @@ public class Main {
 
         // Check for command line arguments
         if (args.length > 0) {
-            if ("--repl".equals(args[0])) {
-                runREPL = true;
-            } else {
-                path = args[0];
-            }
+            path = args[0];
         }
 
         // If no path specified, use default test file
         if (path == null) {
             // path = "pos/myTest.cpp";
             // path = "pos/GOLD01_basics.cpp";
-            // path = "pos/GOLD02_ref_params.cpp";
+            path = "pos/GOLD02_ref_params.cpp";
             // path = "pos/GOLD03_classes_dispatch.cpp";
             // path = "pos/GOLD04_slicing.cpp";
             // path = "pos/GOLD05_virtual_override.cpp";
@@ -55,7 +51,7 @@ public class Main {
             // path = "pos/P17_inheritance.cpp";
             // path = "pos/P18_polymorphie_static.cpp";
             // path = "pos/P19_polymorphie_static_ref.cpp";
-            path = "pos/P20_polymorphie_dynamic.cpp";
+            // path = "pos/P20_polymorphie_dynamic.cpp";
 
             // path = "neg/N01_redeclaration.cpp";
             // path = "neg/N02_redeclaration.cpp";
@@ -169,7 +165,10 @@ public class Main {
             MiniCppParser.StartContext tree = parser.start();
             AST ast = new AST();
             AST.Start astToken = ast.toAST(tree);
-            // System.out.println(astToken.toString());
+
+            // =============================================================================================================================
+            // =============================================================================================================================
+            System.out.println(astToken.toString());
 
             SemanticAnalyzer sA = new SemanticAnalyzer();
             sA.analyze(astToken);
@@ -207,7 +206,7 @@ public class Main {
             Interpreter existingInterpreter)
             throws IOException {
         Interpreter interpreter = existingInterpreter;
-        
+
         if (interpreter == null) {
             // No test file executed, create fresh interpreter
             if (globalAnalyzer == null) {
@@ -217,7 +216,7 @@ public class Main {
             }
             interpreter = new Interpreter(globalAnalyzer.globalScope, functions, classes);
         }
-        
+
         REPL repl = new REPL(globalAnalyzer.globalScope, interpreter);
         repl.start();
     }
